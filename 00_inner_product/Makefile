@@ -1,9 +1,11 @@
 CXX = g++
-CXXFLAGS =-I/home/docker/MPLAPACK/include -Wall -O2 -fopenmp
+
 LDFLAGS_MPFR=-L/home/docker/MPLAPACK/lib -lmpfr -lgmp
 LDFLAGS_GMP=-L/home/docker/MPLAPACK/lib -lmpfr -lgmp
 LDFLAGS_MPBLAS_MPFR=-L/home/docker/MPLAPACK/lib -lmpblas_mpfr -lmpc -lmpfr -lgmp
 LDFLAGS_MPBLAS_GMP=-L/home/docker/MPLAPACK/lib -lmpblas_gmp -lgmp
+
+CXXFLAGS =-I/home/docker/MPLAPACK/include -Wall -O2 -fopenmp
 CXXFLAGS_MPBLAS_MPFR =-I/home/docker/MPLAPACK/include -I/home/docker/MPLAPACK/include/mplapack -Wall -O2 -fopenmp
 CXXFLAGS_MPBLAS_GMP =-I/home/docker/MPLAPACK/include -I/home/docker/MPLAPACK/include/mplapack -Wall -O2 -fopenmp
 
