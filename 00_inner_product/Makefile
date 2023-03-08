@@ -1,6 +1,8 @@
-CXX = g++-mp-12
+CXX = g++
+#CXX = g++-mp-12
 
-MPLAPACK_HOME=/Volumes/Users/maho/MPLAPACK
+MPLAPACK_HOME=/home/docker/MPLAPACK
+#MPLAPACK_HOME=/Volumes/Users/maho/MPLAPACK
 
 LDFLAGS_MPFR=-L$(MPLAPACK_HOME)/lib -lmpfr -lgmp
 LDFLAGS_GMP=-L$(MPLAPACK_HOME)/lib -lmpfr -lgmp
