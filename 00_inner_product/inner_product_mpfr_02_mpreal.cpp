@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <mpblas_mpfr.h>
 #include <mpfr.h>
 
 gmp_randstate_t state;
@@ -34,27 +35,35 @@ int main(int argc, char **argv) {
     mpfr_t dot_product;
 
     mpfr_init2(dot_product, prec);
+    mpreal::default_prec = prec;
+
     init_mpfr_vec(vec1, N, prec);
     init_mpfr_vec(vec2, N, prec);
+    mpreal *vec1_mpreal = new mpreal[N];
+    mpreal *vec2_mpreal = new mpreal[N];
+    mpreal ans;
 
-    mpfr_set_d(dot_product, 0.0, MPFR_RNDN);
+    for (int i = 0; i < N; i++) {
+        vec1_mpreal[i] = vec1[i];
+        vec2_mpreal[i] = vec2[i];
+    }
 
     auto start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < N; i++) {
-        mpfr_fma(dot_product, vec1[i], vec2[i], dot_product, MPFR_RNDN);
-    }
+    ans = Rdot(N, vec1_mpreal, 1, vec2_mpreal, 1);
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::cout << "Elapsed time: " << elapsed_seconds.count() << " s" << std::endl;
 
     std::cout << "Dot product: ";
-    mpfr_printf("%.128Rf", dot_product);
+    mpfr_printf("%.128Rf", mpfr_ptr(ans));
     std::cout << std::endl;
 
     clear_mpfr_vec(vec1, N);
     clear_mpfr_vec(vec2, N);
     mpfr_clear(dot_product);
+    delete[] vec1_mpreal;
+    delete[] vec2_mpreal;
     delete[] vec1;
     delete[] vec2;
 
