@@ -1,11 +1,11 @@
-CXX = g++
+CXX = g++-11
 #CXX = g++-mp-12
 
 MPLAPACK_HOME=/home/docker/MPLAPACK
 #MPLAPACK_HOME=/Volumes/Users/maho/MPLAPACK
 
 LDFLAGS_MPFR=-L$(MPLAPACK_HOME)/lib -lmpfr -lgmp
-LDFLAGS_GMP=-L$(MPLAPACK_HOME)/lib -lmpfr -lgmp
+LDFLAGS_GMP=-L$(MPLAPACK_HOME)/lib -lgmpxx -lgmp
 LDFLAGS_MPBLAS_MPFR=-L$(MPLAPACK_HOME)/lib -lmpblas_mpfr -lmpc -lmpfr -lgmp
 LDFLAGS_MPBLAS_GMP=-L$(MPLAPACK_HOME)/lib -lmpblas_gmp -lgmp
 
@@ -19,7 +19,7 @@ SRC01 = inner_product_mpfr_01_fma.cpp
 SRC02 = inner_product_mpfr_02_mpblas.cpp
 SRC10 = inner_product_gmp_10_naive.cpp
 SRC12 = inner_product_gmp_12_mpblas.cpp
-SRC13 = inner_product_gmp_13_mpblas.cpp
+SRC13 = inner_product_gmp_13_mpblas_openmp.cpp
 
 inner_product_mpfr_00_naive: $(SRC00)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS_MPFR)
@@ -36,7 +36,7 @@ inner_product_gmp_10_naive: $(SRC10)
 inner_product_gmp_12_mpblas: $(SRC12)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS_GMP)
 
-inner_product_gmp_13_mpblas_openmp: $(SRC12)
+inner_product_gmp_13_mpblas_openmp: $(SRC13)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS_GMP)
 
 all: $(TARGETS)
