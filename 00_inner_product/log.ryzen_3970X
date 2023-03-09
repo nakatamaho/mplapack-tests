@@ -1,42 +1,42 @@
 + export LD_LIBRARY_PATH=/home/docker/MPLAPACK/lib
 + LD_LIBRARY_PATH=/home/docker/MPLAPACK/lib
 + /usr/bin/time ./inner_product_gmp_10_naive 100000000 512
-Elapsed time: 6.12149 s
+Elapsed time: 5.98034 s
 Dot product: 25000711.11098772589690362744003768379986609628839327258175875514372700974364405568783265417253438429970339664022000849671630306159411195
-19.03user 4.37system 0:23.44elapsed 99%CPU (0avgtext+0avgdata 23440912maxresident)k
-0inputs+0outputs (0major+5859534minor)pagefaults 0swaps
+18.73user 4.67system 0:23.43elapsed 99%CPU (0avgtext+0avgdata 23441048maxresident)k
+0inputs+0outputs (0major+5859537minor)pagefaults 0swaps
 + /usr/bin/time ./inner_product_gmp_11_openmp 100000000 512
-Elapsed time: 0.312989 s
+Elapsed time: 0.329195 s
 Dot product: 25000711.11098772589690362744003768379986609628839327258175875514372700974364405568783265417253438429970339664022000849671630306159411195
-33.76user 4.57system 0:18.58elapsed 206%CPU (0avgtext+0avgdata 23441704maxresident)k
-0inputs+0outputs (0major+5859793minor)pagefaults 0swaps
+33.67user 4.50system 0:18.49elapsed 206%CPU (0avgtext+0avgdata 23441720maxresident)k
+0inputs+0outputs (0major+5859795minor)pagefaults 0swaps
 + /usr/bin/time ./inner_product_gmp_12_mpblas 100000000 512
-Elapsed time: 8.06073 s
+Elapsed time: 8.03778 s
 Dot product: 25000711.11098772589690362744003768379986609628839327258175875514372700974364405568783265417253438429970339664022000849671630306159411195
-28.80user 8.90system 0:37.78elapsed 99%CPU (0avgtext+0avgdata 46878364maxresident)k
-0inputs+0outputs (0major+11718909minor)pagefaults 0swaps
+28.90user 8.83system 0:37.80elapsed 99%CPU (0avgtext+0avgdata 46878448maxresident)k
+0inputs+0outputs (0major+11718914minor)pagefaults 0swaps
 + /usr/bin/time ./inner_product_gmp_13_mpblas_openmp 100000000 512
-Elapsed time: 0.313135 s
+Elapsed time: 0.319483 s
 Dot product: 25000711.11098772589690362744003768379986609628839327258175875514372700974364405568783265417253438429970339664022000849671630306159411195
-40.22user 9.25system 0:29.74elapsed 166%CPU (0avgtext+0avgdata 46879000maxresident)k
-0inputs+0outputs (0major+11719172minor)pagefaults 0swaps
+40.75user 9.09system 0:30.01elapsed 166%CPU (0avgtext+0avgdata 46879228maxresident)k
+0inputs+0outputs (0major+11719174minor)pagefaults 0swaps
 + /usr/bin/time ./inner_product_mpfr_00_naive 100000000 512
-Elapsed time: 8.54391 s
+Elapsed time: 8.41715 s
 Dot product: 24996441.30081893977395511923237430245164623300173209709949711215137508451099401079536922527588487979650842142785832094609059856190208467
-38.26user 4.61system 0:42.91elapsed 99%CPU (0avgtext+0avgdata 21878676maxresident)k
+38.30user 4.53system 0:42.88elapsed 99%CPU (0avgtext+0avgdata 21878672maxresident)k
 0inputs+0outputs (0major+5468932minor)pagefaults 0swaps
 + /usr/bin/time ./inner_product_mpfr_01_fma 100000000 512
-Elapsed time: 9.64538 s
+Elapsed time: 9.63487 s
 Dot product: 24996441.30081893977395511923237430245164623300173209709949711215137508451099401079536922527588487979650842142785832094609059856190208467
-40.05user 4.24system 0:44.34elapsed 99%CPU (0avgtext+0avgdata 21878696maxresident)k
-0inputs+0outputs (0major+5468929minor)pagefaults 0swaps
+39.83user 4.32system 0:44.20elapsed 99%CPU (0avgtext+0avgdata 21878764maxresident)k
+0inputs+0outputs (0major+5468931minor)pagefaults 0swaps
 + /usr/bin/time ./inner_product_mpfr_02_mpblas 100000000 512
-Elapsed time: 24.1428 s
+Elapsed time: 24.5173 s
 Dot product: 24996441.30081893977395511923237430245164623300173209709949711215137508451099401079536922527588487979650842142785832094609059856190208467
-69.63user 8.67system 1:18.38elapsed 99%CPU (0avgtext+0avgdata 43754000maxresident)k
+70.40user 8.65system 1:19.13elapsed 99%CPU (0avgtext+0avgdata 43754004maxresident)k
 0inputs+0outputs (0major+10937697minor)pagefaults 0swaps
 + /usr/bin/time ./inner_product_mpfr_03_openmp 100000000 512
-Elapsed time: 0.308298 s
+Elapsed time: 0.298305 s
 Dot product: 24996441.30081893977395511923237430245164623300173209709949711215137508451099401079536922527588487979650842142785832094609059856190208467
-49.24user 4.63system 0:35.38elapsed 152%CPU (0avgtext+0avgdata 21879476maxresident)k
-0inputs+0outputs (0major+5469198minor)pagefaults 0swaps
+49.68user 4.25system 0:35.39elapsed 152%CPU (0avgtext+0avgdata 21879448maxresident)k
+0inputs+0outputs (0major+5469199minor)pagefaults 0swaps
