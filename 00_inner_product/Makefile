@@ -9,7 +9,7 @@ LDFLAGS_GMP=-L$(MPLAPACK_HOME)/lib -lgmpxx -lgmp
 LDFLAGS_MPBLAS_MPFR=-L$(MPLAPACK_HOME)/lib -lmpblas_mpfr -lmpc -lmpfr -lgmp
 LDFLAGS_MPBLAS_GMP=-L$(MPLAPACK_HOME)/lib -lmpblas_gmp -lgmp
 
-CXXFLAGS =-I$(MPLAPACK_HOME)/include -I$(MPLAPACK_HOME)/include/mplapack -Wall -O2 -fopenmp
+CXXFLAGS =-I$(MPLAPACK_HOME)/include -I$(MPLAPACK_HOME)/include/mplapack -Wall -march=native -O3 -fopenmp
 
 TARGETS = inner_product_mpfr_00_naive inner_product_mpfr_01_fma inner_product_mpfr_02_mpblas inner_product_mpfr_03_openmp \
           inner_product_gmp_10_naive inner_product_gmp_11_openmp inner_product_gmp_12_mpblas inner_product_gmp_13_mpblas_openmp
