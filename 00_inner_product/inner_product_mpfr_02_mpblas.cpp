@@ -1,9 +1,45 @@
 #include <iostream>
 #include <chrono>
-#include <mpblas_mpfr.h>
-#include <mpfr.h>
+#include <mpreal.h>
 
 gmp_randstate_t state;
+
+mp_rnd_t mpfr::mpreal::default_rnd = MPFR_RNDN; // must be initialized at mpblas/reference/mplapackinit.cpp
+mp_prec_t mpfr::mpreal::default_prec = 512;
+int mpfr::mpreal::default_base = 2;
+int mpfr::mpreal::double_bits = -1;
+
+mpfr::mpreal Rdot(long n, mpfr::mpreal *dx, long incx, mpfr::mpreal *dy, long incy) {
+    long ix = 0;
+    long iy = 0;
+    long i;
+    mpfr::mpreal temp, templ;
+
+    temp = 0.0;
+
+    if (incx < 0)
+        ix = (-n + 1) * incx;
+    if (incy < 0)
+        iy = (-n + 1) * incy;
+
+    temp = 0.0;
+    if (incx == 1 && incy == 1) {
+        {
+            templ = 0.0;
+            for (i = 0; i < n; i++) {
+                templ += dx[i] * dy[i];
+            }
+            temp += templ;
+        }
+    } else {
+        for (i = 0; i < n; i++) {
+            temp += dx[ix] * dy[iy];
+            ix = ix + incx;
+            iy = iy + incy;
+        }
+    }
+    return temp;
+}
 
 void init_mpfr_vec(mpfr_t *vec, int n, int prec) {
     for (int i = 0; i < n; i++) {
@@ -19,6 +55,7 @@ void clear_mpfr_vec(mpfr_t *vec, int n) {
 }
 
 int main(int argc, char **argv) {
+
     gmp_randinit_default(state);
     gmp_randseed_ui(state, 42);
 
@@ -29,19 +66,20 @@ int main(int argc, char **argv) {
 
     int N = std::atoi(argv[1]);
     int prec = std::atoi(argv[2]);
+    mpfr::mpreal::default_prec = prec;
 
     mpfr_t *vec1 = new mpfr_t[N];
     mpfr_t *vec2 = new mpfr_t[N];
     mpfr_t dot_product;
 
     mpfr_init2(dot_product, prec);
-    mpreal::default_prec = prec;
+    mpfr::mpreal::default_prec = prec;
 
     init_mpfr_vec(vec1, N, prec);
     init_mpfr_vec(vec2, N, prec);
-    mpreal *vec1_mpreal = new mpreal[N];
-    mpreal *vec2_mpreal = new mpreal[N];
-    mpreal ans;
+    mpfr::mpreal *vec1_mpreal = new mpfr::mpreal[N];
+    mpfr::mpreal *vec2_mpreal = new mpfr::mpreal[N];
+    mpfr::mpreal ans;
 
     for (int i = 0; i < N; i++) {
         vec1_mpreal[i] = vec1[i];

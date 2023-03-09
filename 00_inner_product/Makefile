@@ -30,7 +30,7 @@ inner_product_mpfr_01_fma: $(SRC01)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS_MPFR)
 
 inner_product_mpfr_02_mpblas: $(SRC02)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS_MPBLAS_MPFR)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS_MPFR)
 
 inner_product_mpfr_03_openmp: $(SRC03)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS_MPFR)
