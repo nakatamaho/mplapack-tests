@@ -1,14 +1,14 @@
 #include <iostream>
 #include <chrono>
+#include <mpblas_gmp.h>
 #include <gmp.h>
-#include <gmpxx.h>
 
 gmp_randstate_t state;
 
-mpf_class Rdot(long n, mpf_class *dx, long incx, mpf_class *dy, long incy) {
-    long ix = 0;
-    long iy = 0;
-    long i;
+mpf_class Rdot_omp(mplapackint n, mpf_class *dx, mplapackint incx, mpf_class *dy, mplapackint incy) {
+    mplapackint ix = 0;
+    mplapackint iy = 0;
+    mplapackint i;
     mpf_class temp, templ;
 
     temp = 0.0;
@@ -20,11 +20,21 @@ mpf_class Rdot(long n, mpf_class *dx, long incx, mpf_class *dy, long incy) {
 
     temp = 0.0;
     if (incx == 1 && incy == 1) {
+// no reduction for multiple precision
+#ifdef _OPENMP
+#pragma omp parallel private(i, templ) shared(temp, dx, dy, n)
+#endif
         {
             templ = 0.0;
+#ifdef _OPENMP
+#pragma omp for
+#endif
             for (i = 0; i < n; i++) {
                 templ += dx[i] * dy[i];
             }
+#ifdef _OPENMP
+#pragma omp critical
+#endif
             temp += templ;
         }
     } else {
