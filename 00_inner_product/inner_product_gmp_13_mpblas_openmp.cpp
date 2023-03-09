@@ -5,7 +5,7 @@
 
 gmp_randstate_t state;
 
-mpf_class Rdot(long n, mpf_class *dx, long incx, mpf_class *dy, long incy) {
+inline mpf_class Rdot(long n, mpf_class *dx, long incx, mpf_class *dy, long incy) {
     long ix = 0;
     long iy = 0;
     long i;
