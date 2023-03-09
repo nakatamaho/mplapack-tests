@@ -1,32 +1,32 @@
 + export LD_LIBRARY_PATH=/home/docker/MPLAPACK/lib
 + LD_LIBRARY_PATH=/home/docker/MPLAPACK/lib
 + /usr/bin/time ./inner_product_gmp_10_naive 100000000 512
-Elapsed time: 6.01007 s
+Elapsed time: 6.08494 s
 Dot product: 25000711.11098772589690362744003768379986609628839327258175875514372700974364405568783265417253438429970339664022000849671630306159411195
-18.69user 4.74system 0:23.46elapsed 99%CPU (0avgtext+0avgdata 23441028maxresident)k
-0inputs+0outputs (0major+5859531minor)pagefaults 0swaps
+18.84user 4.53system 0:23.40elapsed 99%CPU (0avgtext+0avgdata 23441112maxresident)k
+0inputs+0outputs (0major+5859536minor)pagefaults 0swaps
 + /usr/bin/time ./inner_product_gmp_12_mpblas 100000000 512
-Elapsed time: 8.07957 s
+Elapsed time: 8.07217 s
 Dot product: 25000711.11098772589690362744003768379986609628839327258175875514372700974364405568783265417253438429970339664022000849671630306159411195
-29.03user 9.02system 0:38.12elapsed 99%CPU (0avgtext+0avgdata 46878500maxresident)k
-0inputs+0outputs (0major+11718913minor)pagefaults 0swaps
+28.58user 9.02system 0:37.66elapsed 99%CPU (0avgtext+0avgdata 46878360maxresident)k
+0inputs+0outputs (0major+11718914minor)pagefaults 0swaps
 + /usr/bin/time ./inner_product_gmp_13_mpblas_openmp 100000000 512
-Elapsed time: 0.313044 s
+Elapsed time: 0.313598 s
 Dot product: 25000711.11098772589690362744003768379986609628839327258175875514372700974364405568783265417253438429970339664022000849671630306159411195
-40.92user 9.11system 0:30.25elapsed 165%CPU (0avgtext+0avgdata 46879184maxresident)k
-0inputs+0outputs (0major+11719166minor)pagefaults 0swaps
+40.61user 9.06system 0:29.94elapsed 165%CPU (0avgtext+0avgdata 46879220maxresident)k
+0inputs+0outputs (0major+11719179minor)pagefaults 0swaps
 + /usr/bin/time ./inner_product_mpfr_00_naive 100000000 512
-Elapsed time: 8.45542 s
+Elapsed time: 8.41926 s
 Dot product: 24996441.30081893977395511923237430245164623300173209709949711215137508451099401079536922527588487979650842142785832094609059856190208467
-38.68user 4.47system 0:43.19elapsed 99%CPU (0avgtext+0avgdata 21878676maxresident)k
-0inputs+0outputs (0major+5468932minor)pagefaults 0swaps
+38.66user 4.28system 0:42.99elapsed 99%CPU (0avgtext+0avgdata 21878616maxresident)k
+0inputs+0outputs (0major+5468928minor)pagefaults 0swaps
 + /usr/bin/time ./inner_product_mpfr_01_fma 100000000 512
-Elapsed time: 9.632 s
+Elapsed time: 9.6197 s
 Dot product: 24996441.30081893977395511923237430245164623300173209709949711215137508451099401079536922527588487979650842142785832094609059856190208467
-39.53user 4.47system 0:44.05elapsed 99%CPU (0avgtext+0avgdata 21878732maxresident)k
-0inputs+0outputs (0major+5468930minor)pagefaults 0swaps
+39.98user 4.38system 0:44.40elapsed 99%CPU (0avgtext+0avgdata 21878616maxresident)k
+0inputs+0outputs (0major+5468928minor)pagefaults 0swaps
 + /usr/bin/time ./inner_product_mpfr_02_mpblas 100000000 512
-Elapsed time: 24.288 s
+Elapsed time: 24.3214 s
 Dot product: 24996441.30081893977395511923237430245164623300173209709949711215137508451099401079536922527588487979650842142785832094609059856190208467
-70.10user 8.33system 1:18.51elapsed 99%CPU (0avgtext+0avgdata 43753964maxresident)k
+70.35user 8.68system 1:19.11elapsed 99%CPU (0avgtext+0avgdata 43753932maxresident)k
 0inputs+0outputs (0major+10937697minor)pagefaults 0swaps
