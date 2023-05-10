@@ -135,7 +135,6 @@ void Rgemm(const char *transa, const char *transb, long const m, long const n, l
                     }
                 }
             }
-
         } else {
             //
             //           Form  C := alpha*A**T*B + beta*C
