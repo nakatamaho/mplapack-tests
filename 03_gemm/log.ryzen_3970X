@@ -1,0 +1,32 @@
++ ./gemm_gmp_10_naive 500 500 500 512
+Elapsed time: 6.98523 s
+    m     n     k     MFLOPS  Elapsed(s) 
+  500   500   500     35.861  6.985
++ ./gemm_gmp_10_naive 1000 1000 1000 512
+Elapsed time: 63.0146 s
+    m     n     k     MFLOPS  Elapsed(s) 
+ 1000  1000  1000     31.770  63.015
++ ./gemm_gmp_10_naive 1500 1500 1500 512
+Elapsed time: 248.89 s
+    m     n     k     MFLOPS  Elapsed(s) 
+ 1500  1500  1500     27.139  248.890
++ ./gemm_gmp_10_naive 2000 2000 2000 512
+Elapsed time: 579.068 s
+    m     n     k     MFLOPS  Elapsed(s) 
+ 2000  2000  2000     27.644  579.068
++ ./gemm_gmp_12_mpblas 500 500 500 512
+Elapsed time: 6.93736 s
+    m     n     k     MFLOPS  Elapsed(s) 
+  500   500   500     36.109  6.937
++ ./gemm_gmp_12_mpblas 1000 1000 1000 512
+Elapsed time: 55.6812 s
+    m     n     k     MFLOPS  Elapsed(s) 
+ 1000  1000  1000     35.955  55.681
++ ./gemm_gmp_12_mpblas 1500 1500 1500 512
+Elapsed time: 187.248 s
+    m     n     k     MFLOPS  Elapsed(s) 
+ 1500  1500  1500     36.072  187.248
++ ./gemm_gmp_12_mpblas 2000 2000 2000 512
+Elapsed time: 444.86 s
+    m     n     k     MFLOPS  Elapsed(s) 
+ 2000  2000  2000     35.984  444.860

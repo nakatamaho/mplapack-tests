@@ -22,7 +22,7 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-void matmul_gmp(mpf_t *C, mpf_t alpha, mpf_t *A, int m, int k, int lda, mpf_t *B, int n, int ldb, mpf_t beta, int ldc) {
+void matmul_gmp(int m, int n, int k, mpf_t alpha, mpf_t *A, int lda, mpf_t *B, int ldb, mpf_t beta, mpf_t *C, int ldc) {
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
             mpf_t sum;
@@ -46,16 +46,16 @@ void matmul_gmp(mpf_t *C, mpf_t alpha, mpf_t *A, int m, int k, int lda, mpf_t *B
 }
 
 int main(int argc, char *argv[]) {
-  if (argc != 5) {
-    fprintf(stderr, "Usage: %s <m> <k> <n> <prec>\n", argv[0]);
-    return 1;
-  }
+    if (argc != 5) {
+        fprintf(stderr, "Usage: %s <m> <k> <n> <prec>\n", argv[0]);
+        return 1;
+    }
 
-  int m = atoi(argv[1]);
-  int k = atoi(argv[2]);
-  int n = atoi(argv[3]);
-  int prec = atoi(argv[4]);
-      int lda = k, ldb = n, ldc = n;
+    int m = atoi(argv[1]);
+    int k = atoi(argv[2]);
+    int n = atoi(argv[3]);
+    int prec = atoi(argv[4]);
+    int lda = k, ldb = n, ldc = n;
 
     mpf_t *A = (mpf_t *)malloc(m * k * sizeof(mpf_t));
     mpf_t *B = (mpf_t *)malloc(k * n * sizeof(mpf_t));
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
     // Compute C = alpha AB + beta C \n");
     auto start = std::chrono::high_resolution_clock::now();
-    matmul_gmp(C, alpha, A, m, k, lda, B, n, ldb, beta, ldc);
+    matmul_gmp(m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end - start;
