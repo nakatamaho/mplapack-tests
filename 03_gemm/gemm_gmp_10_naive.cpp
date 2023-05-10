@@ -29,7 +29,7 @@ void matmul_gmp(int m, int n, int k, mpf_t alpha, mpf_t *A, int lda, mpf_t *B, i
     mpf_init(mul);
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            mpf_set_ui(sum, 0);
+            mpf_set_d(sum, 0.0);
             for (int l = 0; l < k; l++) {
                 mpf_mul(mul, A[i * lda + l], B[l * ldb + j]);
                 mpf_add(sum, sum, mul);
@@ -37,7 +37,7 @@ void matmul_gmp(int m, int n, int k, mpf_t alpha, mpf_t *A, int lda, mpf_t *B, i
             mpf_mul(sum, alpha, sum);
             mpf_mul(C[i * ldc + j], beta, C[i * ldc + j]);
             mpf_add(C[i * ldc + j], C[i * ldc + j], sum);
-            mpf_set_ui(sum, 0);
+            mpf_set_d(sum, 0.0);
         }
     }
     mpf_clear(mul);
@@ -54,6 +54,7 @@ int main(int argc, char *argv[]) {
     int k = atoi(argv[2]);
     int n = atoi(argv[3]);
     int prec = atoi(argv[4]);
+    mpf_set_default_prec(prec);
     int lda = k, ldb = n, ldc = n;
 
     mpf_t *A = (mpf_t *)malloc(m * k * sizeof(mpf_t));
@@ -64,7 +65,7 @@ int main(int argc, char *argv[]) {
     // Initialize and set random values for A, B, C, alpha, and beta
     gmp_randstate_t state;
     gmp_randinit_default(state);
-    gmp_randseed_ui(state, time(NULL));
+    gmp_randseed_ui(state, 42);
 
     mpf_init(alpha);
     mpf_urandomb(alpha, state, prec);
@@ -96,16 +97,14 @@ int main(int argc, char *argv[]) {
     printf("    m     n     k     MFLOPS  Elapsed(s) \n");
     printf("%5d %5d %5d %10.3f  %5.3f\n", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS, elapsed_seconds.count());
 
-#ifdef _PRINT_MAT
     // Print the result
     printf("C = alpha AB + beta C\n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.6Ff", C[i * ldc + j]);
+            gmp_printf(" %10.128Ff\n", A[i * lda + j]);
         }
         printf("\n");
     }
-#endif
 
     // Clear memory
     for (int i = 0; i < m * k; i++) {

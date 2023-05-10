@@ -210,6 +210,7 @@ int main(int argc, char *argv[]) {
     int k = atoi(argv[2]);
     int n = atoi(argv[3]);
     int prec = atoi(argv[4]);
+    mpf_set_default_prec(prec);
     int lda = k, ldb = n, ldc = n;
 
     mpf_t *A = (mpf_t *)malloc(m * k * sizeof(mpf_t));
@@ -220,7 +221,7 @@ int main(int argc, char *argv[]) {
     // Initialize and set random values for A, B, C, alpha, and beta
     gmp_randstate_t state;
     gmp_randinit_default(state);
-    gmp_randseed_ui(state, time(NULL));
+    gmp_randseed_ui(state, 42);
 
     mpf_init(alpha);
     mpf_urandomb(alpha, state, prec);
@@ -271,16 +272,14 @@ int main(int argc, char *argv[]) {
     printf("    m     n     k     MFLOPS  Elapsed(s) \n");
     printf("%5d %5d %5d %10.3f  %5.3f\n", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS, elapsed_seconds.count());
 
-#ifdef _PRINT_MAT
     // Print the result
     printf("C = alpha AB + beta C\n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.6Ff", C[i * ldc + j]);
+            gmp_printf(" %10.128Ff\n", C[i * ldc + j]);
         }
         printf("\n");
     }
-#endif
 
     // Clear memory
     for (int i = 0; i < m * k; i++) {
