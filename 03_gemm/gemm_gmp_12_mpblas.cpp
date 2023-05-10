@@ -254,6 +254,35 @@ int main(int argc, char *argv[]) {
         C_mpf_class[i] = mpf_class(C[i]);
     }
 
+#ifdef _PRINT
+    ////////////////////////////////////////////////
+    gmp_printf("alpha = %10.128Ff\n", alpha_mpf_class);
+    gmp_printf("beta = %10.128Ff\n", beta_mpf_class);
+
+    printf("A = \n");
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < k; j++) {
+            gmp_printf(" %10.128Ff\n", A[i * lda + j]);
+        }
+        printf("\n");
+    }
+    printf("B = \n");
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < n; j++) {
+            gmp_printf(" %10.128Ff\n", B[i * ldb + j]);
+        }
+        printf("\n");
+    }
+    printf("C = \n");
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            gmp_printf(" %10.128Ff\n", C[i * ldc + j]);
+        }
+        printf("\n");
+    }
+    ////////////////////////////////////////////////
+#endif
+
     // Compute C = alpha AB + beta C \n");
     char transa = 'n', transb = 'n';
     auto start = std::chrono::high_resolution_clock::now();
@@ -265,14 +294,16 @@ int main(int argc, char *argv[]) {
     printf("    m     n     k     MFLOPS  Elapsed(s) \n");
     printf("%5d %5d %5d %10.3f  %5.3f\n", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS, elapsed_seconds.count());
 
+#ifdef _PRINT
     // Print the result
     printf("C = alpha AB + beta C\n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", C[i * ldc + j]);
+            gmp_printf(" %10.128Ff\n", C_mpf_class[i * ldc + j]);
         }
         printf("\n");
     }
+#endif
 
     // Clear memory
     for (int i = 0; i < m * k; i++) {

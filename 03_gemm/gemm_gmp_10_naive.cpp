@@ -87,6 +87,36 @@ int main(int argc, char *argv[]) {
         mpf_urandomb(C[i], state, prec);
     }
 
+    mpf_set_d(alpha, 0.0);
+    mpf_set_d(beta, 0.0);
+
+    ////////////////////////////////////////////////
+    gmp_printf("alpha = %10.128Ff\n", alpha);
+    gmp_printf("beta = %10.128Ff\n", beta);
+
+    printf("A = \n");
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < k; j++) {
+            gmp_printf(" %10.128Ff\n", A[i * lda + j]);
+        }
+        printf("\n");
+    }
+    printf("B = \n");
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < n; j++) {
+            gmp_printf(" %10.128Ff\n", B[i * ldb + j]);
+        }
+        printf("\n");
+    }
+    printf("C = \n");
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            gmp_printf(" %10.128Ff\n", C[i * ldc + j]);
+        }
+        printf("\n");
+    }
+    ////////////////////////////////////////////////
+
     // Compute C = alpha AB + beta C \n");
     auto start = std::chrono::high_resolution_clock::now();
     matmul_gmp(m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);

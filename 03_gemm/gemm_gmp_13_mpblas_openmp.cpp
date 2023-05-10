@@ -10,6 +10,10 @@ gmp_randstate_t state;
 
 #define MFLOPS 1e-6
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 // cf. https://netlib.org/lapack/lawnspdf/lawn41.pdf p.120
 double flops_gemm(int k_i, int m_i, int n_i) {
     double adds, muls, flops;
@@ -112,26 +116,23 @@ void Rgemm(const char *transa, const char *transb, long const m, long const n, l
             //
             //           Form  C := alpha*A*B + beta*C.
             //
-            for (j = 0; j < n; j++) {
-                if (beta == 0.0) {
-                    for (i = 0; i < m; i++) {
-                        c[i + j * ldc] = 0.0;
-                    }
-                } else if (beta != 1.0) {
-                    for (i = 0; i < m; i++) {
-                        c[i + j * ldc] = beta * c[i + j * ldc];
-                    }
-                }
-            }
-// main loop
 #ifdef _OPENMP
 #pragma omp parallel for private(i, j, l, temp)
 #endif
-            for (j = 0; j < n; j++) {
-                for (l = 0; l < k; l++) {
-                    temp = alpha * b[l + j * ldb];
-                    for (i = 0; i < m; i++) {
-                        c[i + j * ldc] += temp * a[i + l * lda];
+            for (j = 1; j <= n; j = j + 1) {
+                if (beta == zero) {
+                    for (i = 1; i <= m; i = i + 1) {
+                        c[(i - 1) + (j - 1) * ldc] = zero;
+                    }
+                } else if (beta != one) {
+                    for (i = 1; i <= m; i = i + 1) {
+                        c[(i - 1) + (j - 1) * ldc] = beta * c[(i - 1) + (j - 1) * ldc];
+                    }
+                }
+                for (l = 1; l <= k; l = l + 1) {
+                    temp = alpha * b[(l - 1) + (j - 1) * ldb];
+                    for (i = 1; i <= m; i = i + 1) {
+                        c[(i - 1) + (j - 1) * ldc] += temp * a[(i - 1) + (l - 1) * lda];
                     }
                 }
             }
@@ -260,6 +261,35 @@ int main(int argc, char *argv[]) {
         C_mpf_class[i] = mpf_class(C[i]);
     }
 
+#ifdef _PRINT
+    ////////////////////////////////////////////////
+    gmp_printf("alpha = %10.128Ff\n", alpha_mpf_class);
+    gmp_printf("beta = %10.128Ff\n", beta_mpf_class);
+
+    printf("A = \n");
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < k; j++) {
+            gmp_printf(" %10.128Ff\n", A[i * lda + j]);
+        }
+        printf("\n");
+    }
+    printf("B = \n");
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < n; j++) {
+            gmp_printf(" %10.128Ff\n", B[i * ldb + j]);
+        }
+        printf("\n");
+    }
+    printf("C = \n");
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            gmp_printf(" %10.128Ff\n", C[i * ldc + j]);
+        }
+        printf("\n");
+    }
+    ////////////////////////////////////////////////
+#endif
+
     // Compute C = alpha AB + beta C \n");
     char transa = 'n', transb = 'n';
     auto start = std::chrono::high_resolution_clock::now();
@@ -271,14 +301,16 @@ int main(int argc, char *argv[]) {
     printf("    m     n     k     MFLOPS  Elapsed(s) \n");
     printf("%5d %5d %5d %10.3f  %5.3f\n", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS, elapsed_seconds.count());
 
+#ifdef _PRINT
     // Print the result
     printf("C = alpha AB + beta C\n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", C[i * ldc + j]);
+            gmp_printf(" %10.128Ff\n", C_mpf_class[i * ldc + j]);
         }
         printf("\n");
     }
+#endif
 
     // Clear memory
     for (int i = 0; i < m * k; i++) {
