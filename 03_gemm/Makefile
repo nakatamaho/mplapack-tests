@@ -1,7 +1,12 @@
 CXX = g++-11
+#CXX = g++-mp-12
+
+MPLAPACK_HOME=/home/docker/MPLAPACK
+#MPLAPACK_HOME=/Volumes/Users/maho/MPLAPACK
+
 OPENMPFLAGS = -Wall -O3 -march=native
-CXXFLAGS = -fopenmp -Wall -O3 -march=native
-LDFLAGS = -lgmp
+CXXFLAGS = -I$(MPLAPACK_HOME)/include -fopenmp -Wall -O3 -march=native
+LDFLAGS = -L$(MPLAPACK_HOME)/lib -lgmp -Wl,-rpath,$(MPLAPACK_HOME)/lib
 
 TARGET = gemm_gmp_10_naive gemm_gmp_12_mpblas gemm_gmp_13_mpblas_openmp
 SRCS = gemm_gmp_10_naive.cpp gemm_gmp_12_mpblas.cpp gemm_gmp_13_mpblas_openmp.cpp
