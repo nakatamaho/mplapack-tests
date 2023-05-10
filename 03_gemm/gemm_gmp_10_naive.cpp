@@ -27,15 +27,13 @@ void matmul_gmp(int m, int n, int k, mpf_t alpha, mpf_t *A, int lda, mpf_t *B, i
     mpf_init(sum);
     mpf_init(product);
 
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
+    for (int j = 0; j < n; ++j) {
+        for (int i = 0; i < m; ++i) {
             mpf_set_ui(sum, 0);
-
             for (int l = 0; l < k; ++l) {
                 mpf_mul(product, A[i * lda + l], B[l * ldb + j]);
                 mpf_add(sum, sum, product);
             }
-
             mpf_mul(sum, sum, alpha);
             mpf_mul(C[i * ldc + j], C[i * ldc + j], beta);
             mpf_add(C[i * ldc + j], C[i * ldc + j], sum);
