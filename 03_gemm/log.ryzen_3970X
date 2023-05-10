@@ -1,48 +1,48 @@
 + ./gemm_gmp_10_naive 500 500 500 512
-Elapsed time: 8.98983 s
+Elapsed time: 9.00679 s
     m     n     k     MFLOPS  Elapsed(s) 
-  500   500   500     27.865  8.990
+  500   500   500     27.812  9.007
 + ./gemm_gmp_10_naive 1000 1000 1000 512
-Elapsed time: 84.5425 s
+Elapsed time: 83.6073 s
     m     n     k     MFLOPS  Elapsed(s) 
- 1000  1000  1000     23.680  84.542
+ 1000  1000  1000     23.945  83.607
 + ./gemm_gmp_10_naive 1500 1500 1500 512
-Elapsed time: 323.814 s
+Elapsed time: 319.678 s
     m     n     k     MFLOPS  Elapsed(s) 
- 1500  1500  1500     20.859  323.814
+ 1500  1500  1500     21.129  319.678
 + ./gemm_gmp_10_naive 2000 2000 2000 512
-Elapsed time: 817.827 s
+Elapsed time: 810.253 s
     m     n     k     MFLOPS  Elapsed(s) 
- 2000  2000  2000     19.574  817.827
+ 2000  2000  2000     19.757  810.253
 + ./gemm_gmp_12_mpblas 500 500 500 512
-Elapsed time: 11.3223 s
+Elapsed time: 11.3184 s
     m     n     k     MFLOPS  Elapsed(s) 
-  500   500   500     22.125  11.322
+  500   500   500     22.132  11.318
 + ./gemm_gmp_12_mpblas 1000 1000 1000 512
-Elapsed time: 91.0039 s
+Elapsed time: 91.1001 s
     m     n     k     MFLOPS  Elapsed(s) 
- 1000  1000  1000     21.999  91.004
+ 1000  1000  1000     21.976  91.100
 + ./gemm_gmp_12_mpblas 1500 1500 1500 512
-Elapsed time: 307.941 s
+Elapsed time: 305.229 s
     m     n     k     MFLOPS  Elapsed(s) 
- 1500  1500  1500     21.934  307.941
+ 1500  1500  1500     22.129  305.229
 + ./gemm_gmp_12_mpblas 2000 2000 2000 512
-Elapsed time: 728.453 s
+Elapsed time: 726.181 s
     m     n     k     MFLOPS  Elapsed(s) 
- 2000  2000  2000     21.975  728.453
+ 2000  2000  2000     22.044  726.181
 + ./gemm_gmp_13_mpblas_openmp 500 500 500 512
-Elapsed time: 0.328795 s
+Elapsed time: 0.337955 s
     m     n     k     MFLOPS  Elapsed(s) 
-  500   500   500    761.873  0.329
+  500   500   500    741.222  0.338
 + ./gemm_gmp_13_mpblas_openmp 1000 1000 1000 512
-Elapsed time: 2.48682 s
+Elapsed time: 2.47584 s
     m     n     k     MFLOPS  Elapsed(s) 
- 1000  1000  1000    805.043  2.487
+ 1000  1000  1000    808.615  2.476
 + ./gemm_gmp_13_mpblas_openmp 1500 1500 1500 512
-Elapsed time: 8.35307 s
+Elapsed time: 8.51235 s
     m     n     k     MFLOPS  Elapsed(s) 
- 1500  1500  1500    808.625  8.353
+ 1500  1500  1500    793.494  8.512
 + ./gemm_gmp_13_mpblas_openmp 2000 2000 2000 512
-Elapsed time: 20.1214 s
+Elapsed time: 20.4985 s
     m     n     k     MFLOPS  Elapsed(s) 
- 2000  2000  2000    795.571  20.121
+ 2000  2000  2000    780.936  20.498

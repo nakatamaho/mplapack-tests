@@ -22,15 +22,15 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-void matmul_gmp(int m, int n, int k, mpf_t alpha, mpf_t *A, int lda, mpf_t *B, int ldb, mpf_t beta, mpf_t *C, int ldc) {
+void matmul_gmp(long m, long n, long k, mpf_t alpha, mpf_t *A, long lda, mpf_t *B, long ldb, mpf_t beta, mpf_t *C, long ldc) {
     mpf_t sum, product;
     mpf_init(sum);
     mpf_init(product);
 
-    for (int j = 0; j < n; ++j) {
-        for (int i = 0; i < m; ++i) {
+    for (long j = 0; j < n; ++j) {
+        for (long i = 0; i < m; ++i) {
             mpf_set_ui(sum, 0);
-            for (int l = 0; l < k; ++l) {
+            for (long l = 0; l < k; ++l) {
                 mpf_mul(product, A[i * lda + l], B[l * ldb + j]);
                 mpf_add(sum, sum, product);
             }
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 
     // Compute C = alpha AB + beta C \n");
     auto start = std::chrono::high_resolution_clock::now();
-    matmul_gmp(m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+    matmul_gmp((long)m, (long)n, (long)k, alpha, A, (long)lda, B, (long)ldb, beta, C, (long)ldc);
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end - start;
