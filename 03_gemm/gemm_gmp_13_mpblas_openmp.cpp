@@ -6,8 +6,6 @@
 #include <time.h>
 #include <gmpxx.h>
 
-gmp_randstate_t state;
-
 #define MFLOPS 1e-6
 
 #ifdef _OPENMP
