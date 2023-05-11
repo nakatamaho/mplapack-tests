@@ -9,8 +9,8 @@ CXXFLAGS = -I$(MPLAPACK_HOME)/include -fopenmp -Wall -funroll-loops -O3 -march=n
 LDFLAGS = -L$(MPLAPACK_HOME)/lib -lgmp -Wl,-rpath,$(MPLAPACK_HOME)/lib
 LDFLAGSMPFR = -L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/lib
 
-TARGET = gemm_gmp_10_naive gemm_gmp_12_mpblas gemm_gmp_13_mpblas_openmp gemm_gmp_30_mpblaslike_naive gemm_mpfr_10_naive
-SRCS = gemm_gmp_10_naive.cpp gemm_gmp_12_mpblas.cpp gemm_gmp_13_mpblas_openmp.cpp gemm_gmp_30_mpblaslike_naive.cpp gemm_mpfr_10_naive.cpp
+TARGET = gemm_gmp_10_naive gemm_gmp_12_mpblas gemm_gmp_13_mpblas_openmp gemm_gmp_30_mpblaslike_naive gemm_mpfr_10_naive #gemm_mpfr_11_fma
+SRCS = gemm_gmp_10_naive.cpp gemm_gmp_12_mpblas.cpp gemm_gmp_13_mpblas_openmp.cpp gemm_gmp_30_mpblaslike_naive.cpp gemm_mpfr_10_naive.cpp #gemm_mpfr_11_fma.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 .PHONY: all clean
@@ -21,6 +21,9 @@ gemm_gmp_10_naive: gemm_gmp_10_naive.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 gemm_mpfr_10_naive: gemm_mpfr_10_naive.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSMPFR)
+
+gemm_mpfr_11_fma: gemm_mpfr_11_fma.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSMPFR)
 
 gemm_gmp_12_mpblas: gemm_gmp_12_mpblas.o

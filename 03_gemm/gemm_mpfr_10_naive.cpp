@@ -22,17 +22,17 @@ double flops_gemm(int k_i, int m_i, int n_i) {
 }
 
 void matmul_mpfr(long m, long n, long k, mpfr_t alpha, mpfr_t *A, long lda, mpfr_t *B, long ldb, mpfr_t beta, mpfr_t *C, long ldc) {
-    mpfr_t sum, product;
+    mpfr_t sum, temp;
     mpfr_init(sum);
-    mpfr_init(product);
+    mpfr_init(temp);
 
     // C = alpha * A * B + beta * C
     for (long i = 0; i < m; i++) {
         for (long j = 0; j < n; j++) {
             mpfr_set_ui(sum, 0.0, MPFR_RNDN);
             for (long l = 0; l < k; l++) {
-                mpfr_mul(product, A[i * lda + l], B[l * ldb + j], MPFR_RNDN);
-                mpfr_add(sum, sum, product, MPFR_RNDN);
+                mpfr_mul(temp, A[i * lda + l], B[l * ldb + j], MPFR_RNDN);
+                mpfr_add(sum, sum, temp, MPFR_RNDN);
             }
             mpfr_mul(sum, sum, alpha, MPFR_RNDN);
             mpfr_mul(C[i * ldc + j], C[i * ldc + j], beta, MPFR_RNDN);
@@ -40,7 +40,7 @@ void matmul_mpfr(long m, long n, long k, mpfr_t alpha, mpfr_t *A, long lda, mpfr
         }
     }
     mpfr_clear(sum);
-    mpfr_clear(product);
+    mpfr_clear(temp);
 }
 
 int main(int argc, char **argv) {
@@ -97,7 +97,6 @@ int main(int argc, char **argv) {
     std::cout << "Elapsed time: " << elapsed_seconds.count() << " s" << std::endl;
     printf("    m     n     k     MFLOPS  Elapsed(s) \n");
     printf("%5d %5d %5d %10.3f  %5.3f\n", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS, elapsed_seconds.count());
-
 
     for (int i = 0; i < m * k; i++) {
         mpfr_clear(A[i]);
