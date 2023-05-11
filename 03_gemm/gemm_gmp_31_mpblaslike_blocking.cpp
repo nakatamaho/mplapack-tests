@@ -96,14 +96,13 @@ int main(int argc, char *argv[]) {
     auto start = std::chrono::high_resolution_clock::now();
     matmul_gmp(m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
     auto end = std::chrono::high_resolution_clock::now();
-
     std::chrono::duration<double> elapsed_seconds = end - start;
-    std::cout << "Elapsed time: " << elapsed_seconds.count() << " s" << std::endl;
 
     char transa = 'n', transb = 'n';
     Rgemm(&transa, &transb, (long)m, (long)n, (long)k, alpha, A, (long)lda, B, (long)ldb, beta, C_org, (long)ldc);
 
     mpf_class tmp;
+    tmp = 0.0;
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
             tmp += abs(C_org[i * ldc + j] - C[i * ldc + j]);
