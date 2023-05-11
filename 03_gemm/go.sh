@@ -17,3 +17,8 @@
 ./gemm_gmp_30_mpblaslike_naive	1000 1000 1000 512
 ./gemm_gmp_30_mpblaslike_naive	1500 1500 1500 512
 ./gemm_gmp_30_mpblaslike_naive	2000 2000 2000 512
+
+./gemm_mpfr_10_naive     500  500  500 512
+./gemm_mpfr_10_naive    1000 1000 1000 512
+./gemm_mpfr_10_naive    1500 1500 1500 512
+./gemm_mpfr_10_naive    2000 2000 2000 512

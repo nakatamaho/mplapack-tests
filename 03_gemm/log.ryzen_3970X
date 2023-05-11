@@ -1,64 +1,80 @@
 + ./gemm_gmp_10_naive 500 500 500 512
-Elapsed time: 8.00169 s
+Elapsed time: 7.96975 s
     m     n     k     MFLOPS  Elapsed(s) 
-  500   500   500     31.306  8.002
+  500   500   500     31.431  7.970
 + ./gemm_gmp_10_naive 1000 1000 1000 512
-Elapsed time: 75.7108 s
+Elapsed time: 75.3437 s
     m     n     k     MFLOPS  Elapsed(s) 
- 1000  1000  1000     26.443  75.711
+ 1000  1000  1000     26.572  75.344
 + ./gemm_gmp_10_naive 1500 1500 1500 512
-Elapsed time: 293.935 s
+Elapsed time: 301.103 s
     m     n     k     MFLOPS  Elapsed(s) 
- 1500  1500  1500     22.980  293.935
+ 1500  1500  1500     22.433  301.103
 + ./gemm_gmp_10_naive 2000 2000 2000 512
-Elapsed time: 751.499 s
+Elapsed time: 751.956 s
     m     n     k     MFLOPS  Elapsed(s) 
- 2000  2000  2000     21.301  751.499
+ 2000  2000  2000     21.288  751.956
 + ./gemm_gmp_12_mpblas 500 500 500 512
-Elapsed time: 10.3037 s
+Elapsed time: 10.3011 s
     m     n     k     MFLOPS  Elapsed(s) 
-  500   500   500     24.312  10.304
+  500   500   500     24.318  10.301
 + ./gemm_gmp_12_mpblas 1000 1000 1000 512
-Elapsed time: 82.0459 s
+Elapsed time: 82.0774 s
     m     n     k     MFLOPS  Elapsed(s) 
- 1000  1000  1000     24.401  82.046
+ 1000  1000  1000     24.392  82.077
 + ./gemm_gmp_12_mpblas 1500 1500 1500 512
-Elapsed time: 280.602 s
+Elapsed time: 276.331 s
     m     n     k     MFLOPS  Elapsed(s) 
- 1500  1500  1500     24.071  280.602
+ 1500  1500  1500     24.444  276.331
 + ./gemm_gmp_12_mpblas 2000 2000 2000 512
-Elapsed time: 656.003 s
+Elapsed time: 653.769 s
     m     n     k     MFLOPS  Elapsed(s) 
- 2000  2000  2000     24.402  656.003
+ 2000  2000  2000     24.486  653.769
 + ./gemm_gmp_13_mpblas_openmp 500 500 500 512
-Elapsed time: 0.358231 s
+Elapsed time: 0.343637 s
     m     n     k     MFLOPS  Elapsed(s) 
-  500   500   500    699.269  0.358
+  500   500   500    728.967  0.344
 + ./gemm_gmp_13_mpblas_openmp 1000 1000 1000 512
-Elapsed time: 2.54971 s
+Elapsed time: 2.54125 s
     m     n     k     MFLOPS  Elapsed(s) 
- 1000  1000  1000    785.189  2.550
+ 1000  1000  1000    787.800  2.541
 + ./gemm_gmp_13_mpblas_openmp 1500 1500 1500 512
-Elapsed time: 8.59382 s
+Elapsed time: 8.60951 s
     m     n     k     MFLOPS  Elapsed(s) 
- 1500  1500  1500    785.972  8.594
+ 1500  1500  1500    784.539  8.610
 + ./gemm_gmp_13_mpblas_openmp 2000 2000 2000 512
-Elapsed time: 20.631 s
+Elapsed time: 20.6487 s
     m     n     k     MFLOPS  Elapsed(s) 
- 2000  2000  2000    775.920  20.631
+ 2000  2000  2000    775.255  20.649
 + ./gemm_gmp_30_mpblaslike_naive 500 500 500 512
-Elapsed time: 16.8677 s
+Elapsed time: 16.9886 s
     m     n     k     MFLOPS      DIFF     Elapsed(s)
-  500   500   500     14.851   0.000e+00     16.868
+  500   500   500     14.745   0.000e+00     16.989
 + ./gemm_gmp_30_mpblaslike_naive 1000 1000 1000 512
-Elapsed time: 143.521 s
+Elapsed time: 144.844 s
     m     n     k     MFLOPS      DIFF     Elapsed(s)
- 1000  1000  1000     13.949   0.000e+00     143.521
+ 1000  1000  1000     13.822   0.000e+00     144.844
 + ./gemm_gmp_30_mpblaslike_naive 1500 1500 1500 512
-Elapsed time: 524.44 s
+Elapsed time: 525.266 s
     m     n     k     MFLOPS      DIFF     Elapsed(s)
- 1500  1500  1500     12.879   0.000e+00     524.440
+ 1500  1500  1500     12.859   0.000e+00     525.266
 + ./gemm_gmp_30_mpblaslike_naive 2000 2000 2000 512
-Elapsed time: 1297.13 s
+Elapsed time: 1294.66 s
     m     n     k     MFLOPS      DIFF     Elapsed(s)
- 2000  2000  2000     12.341   0.000e+00     1297.128
+ 2000  2000  2000     12.365   0.000e+00     1294.658
++ ./gemm_mpfr_10_naive 500 500 500 512
+Elapsed time: 14.7621 s
+    m     n     k     MFLOPS  Elapsed(s) 
+  500   500   500     16.969  14.762
++ ./gemm_mpfr_10_naive 1000 1000 1000 512
+Elapsed time: 150.508 s
+    m     n     k     MFLOPS  Elapsed(s) 
+ 1000  1000  1000     13.302  150.508
++ ./gemm_mpfr_10_naive 1500 1500 1500 512
+Elapsed time: 626.625 s
+    m     n     k     MFLOPS  Elapsed(s) 
+ 1500  1500  1500     10.779  626.625
++ ./gemm_mpfr_10_naive 2000 2000 2000 512
+Elapsed time: 1538.02 s
+    m     n     k     MFLOPS  Elapsed(s) 
+ 2000  2000  2000     10.408  1538.017
