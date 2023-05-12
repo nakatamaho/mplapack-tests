@@ -9,8 +9,16 @@ CXXFLAGS = -I$(MPLAPACK_HOME)/include -fopenmp -Wall -funroll-loops -O2 -march=n
 LDFLAGS = -L$(MPLAPACK_HOME)/lib -lgmp -Wl,-rpath,$(MPLAPACK_HOME)/lib
 LDFLAGSMPFR = -L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/lib
 
-TARGET = gemm_gmp_10_naive gemm_gmp_12_mpblas gemm_gmp_13_mpblas_openmp gemm_gmp_30_mpblaslike_naive gemm_gmp_31_mpblaslike_blocking gemm_gmp_32_mpblaslike_blocking_openmp gemm_mpfr_10_naive #gemm_mpfr_11_fma
-SRCS = gemm_gmp_10_naive.cpp gemm_gmp_12_mpblas.cpp gemm_gmp_13_mpblas_openmp.cpp gemm_gmp_30_mpblaslike_naive.cpp gemm_gmp_31_mpblaslike_blocking.cpp gemm_gmp_32_mpblaslike_blocking_openmp.cpp gemm_mpfr_10_naive.cpp #gemm_mpfr_11_fma.cpp
+TARGET = gemm_gmp_10_naive \
+gemm_gmp_20_mpblas gemm_gmp_21_mpblas_openmp \
+gemm_gmp_30_mpblaslike_naive gemm_gmp_31_mpblaslike_blocking gemm_gmp_32_mpblaslike_blocking_openmp \
+gemm_mpfr_10_naive #gemm_mpfr_11_fma
+
+SRCS = gemm_gmp_10_naive.cpp \
+gemm_gmp_20_mpblas.cpp gemm_gmp_21_mpblas_openmp.cpp \
+gemm_gmp_30_mpblaslike_naive.cpp gemm_gmp_31_mpblaslike_blocking.cpp gemm_gmp_32_mpblaslike_blocking_openmp.cpp \
+gemm_mpfr_10_naive.cpp #gemm_mpfr_11_fma.cpp
+
 OBJS = $(SRCS:.cpp=.o)
 
 .PHONY: all clean
@@ -26,10 +34,10 @@ gemm_mpfr_10_naive: gemm_mpfr_10_naive.o
 gemm_mpfr_11_fma: gemm_mpfr_11_fma.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSMPFR)
 
-gemm_gmp_12_mpblas: gemm_gmp_12_mpblas.o
+gemm_gmp_20_mpblas: gemm_gmp_20_mpblas.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) -lgmpxx
 
-gemm_gmp_13_mpblas_openmp: gemm_gmp_13_mpblas_openmp.o
+gemm_gmp_21_mpblas_openmp: gemm_gmp_21_mpblas_openmp.o
 	$(CXX) $(OPENMPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) -lgmpxx
 
 gemm_gmp_30_mpblaslike_naive: gemm_gmp_30_mpblaslike_naive.o
