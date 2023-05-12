@@ -24,7 +24,6 @@ double flops_gemm(int k_i, int m_i, int n_i) {
 }
 
 void matmul_gmp(int m, int n, int k, mpf_class alpha, mpf_class *A, int lda, mpf_class *B, int ldb, mpf_class beta, mpf_class *C, int ldc) {
-
     mpf_class temp;
     for (int i = 0; i < m; ++i) {
         for (int j = 0; j < n; ++j) {
@@ -91,7 +90,7 @@ int main(int argc, char *argv[]) {
     tmp = 0.0;
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            tmp += abs(C_org[i * ldc + j] - C[i * ldc + j]);
+            tmp += abs(C_org[i + j * ldc] - C[i  + j * ldc]);
         }
     }
 

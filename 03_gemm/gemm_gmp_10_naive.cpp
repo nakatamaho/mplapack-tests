@@ -29,12 +29,12 @@ void matmul_gmp(long m, long n, long k, mpf_t alpha, mpf_t *A, long lda, mpf_t *
         for (long i = 0; i < m; ++i) {
             mpf_set_ui(sum, 0);
             for (long l = 0; l < k; ++l) {
-                mpf_mul(temp, A[i * lda + l], B[l * ldb + j]);
+                mpf_mul(temp, A[i + l * lda], B[l + j * ldb]);
                 mpf_add(sum, sum, temp);
             }
             mpf_mul(sum, sum, alpha);
-            mpf_mul(C[i * ldc + j], C[i * ldc + j], beta);
-            mpf_add(C[i * ldc + j], C[i * ldc + j], sum);
+            mpf_mul(C[i + j * ldc], C[i + j * ldc], beta);
+            mpf_add(C[i + j * ldc], C[i + j * ldc], sum);
         }
     }
     mpf_clear(sum);
@@ -92,21 +92,21 @@ int main(int argc, char *argv[]) {
     printf("A = \n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < k; j++) {
-            gmp_printf(" %10.128Ff\n", A[i * lda + j]);
+            gmp_printf(" %10.128Ff\n", A[i + j * lda]);
         }
         printf("\n");
     }
     printf("B = \n");
     for (int i = 0; i < k; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", B[i * ldb + j]);
+            gmp_printf(" %10.128Ff\n", B[i + j * ldb]);
         }
         printf("\n");
     }
     printf("C = \n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", C[i * ldc + j]);
+            gmp_printf(" %10.128Ff\n", C[i + j * ldc]);
         }
         printf("\n");
     }
@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
     printf("C = alpha AB + beta C\n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", C[i * ldc + j]);
+            gmp_printf(" %10.128Ff\n", C[i + j * ldc]);
         }
         printf("\n");
     }

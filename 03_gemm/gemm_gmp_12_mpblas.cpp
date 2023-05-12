@@ -260,21 +260,21 @@ int main(int argc, char *argv[]) {
     printf("A = \n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < k; j++) {
-            gmp_printf(" %10.128Ff\n", A[i * lda + j]);
+            gmp_printf(" %10.128Ff\n", A[i + j * ldb]);
         }
         printf("\n");
     }
     printf("B = \n");
     for (int i = 0; i < k; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", B[i * ldb + j]);
+            gmp_printf(" %10.128Ff\n", B[i + j * ldb]);
         }
         printf("\n");
     }
     printf("C = \n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", C[i * ldc + j]);
+            gmp_printf(" %10.128Ff\n", C[i + j * ldc]);
         }
         printf("\n");
     }
@@ -297,7 +297,7 @@ int main(int argc, char *argv[]) {
     printf("C = alpha AB + beta C\n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", C_mpf_class[i * ldc + j]);
+            gmp_printf(" %10.128Ff\n", C_mpf_class[i + j * ldc]);
         }
         printf("\n");
     }
