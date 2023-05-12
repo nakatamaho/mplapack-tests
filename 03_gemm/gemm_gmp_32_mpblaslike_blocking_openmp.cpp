@@ -39,13 +39,14 @@ void matmul_gmp_block(long i0, long j0, long m, long n, long k, mpf_class alpha,
     }
 }
 
-// Matrix multiplication kernel with blocking
+// Matrix multiplication kernel with blocking and OpenMP parallelization
 void matmul_gmp(long m, long n, long k, mpf_class alpha, mpf_class *A, long lda, mpf_class *B, long ldb, mpf_class beta, mpf_class *C, long ldc) {
     for (int i = 0; i < m; ++i) {
         for (int j = 0; j < n; ++j) {
             C[i + j * ldc] = beta * C[i + j * ldc];
         }
     }
+    #pragma omp parallel for
     for (long i0 = 0; i0 < m; i0 += BLOCK_X) {
         for (long j0 = 0; j0 < n; j0 += BLOCK_Y) {
             matmul_gmp_block(i0, j0, m, n, k, alpha, A, lda, B, ldb, C, ldc);
