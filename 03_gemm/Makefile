@@ -11,7 +11,9 @@ LDFLAGSMPFR = -L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/li
 
 TARGET = gemm_gmp_10_naive \
 gemm_gmp_20_mpblas gemm_gmp_21_mpblas_openmp \
-gemm_gmp_30_mpblaslike_naive gemm_gmp_31_mpblaslike_blocking gemm_gmp_32_mpblaslike_blocking_openmp \
+gemm_gmp_30_mpblaslike_naive_ijl \
+gemm_gmp_30_mpblaslike_naive_jil \
+gemm_gmp_31_mpblaslike_blocking gemm_gmp_32_mpblaslike_blocking_openmp \
 gemm_mpfr_10_naive #gemm_mpfr_11_fma
 
 SRCS = gemm_gmp_10_naive.cpp \
@@ -40,7 +42,10 @@ gemm_gmp_20_mpblas: gemm_gmp_20_mpblas.o
 gemm_gmp_21_mpblas_openmp: gemm_gmp_21_mpblas_openmp.o
 	$(CXX) $(OPENMPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) -lgmpxx
 
-gemm_gmp_30_mpblaslike_naive: gemm_gmp_30_mpblaslike_naive.o
+gemm_gmp_30_mpblaslike_naive_ijl: gemm_gmp_30_mpblaslike_naive_ijl.o
+	$(CXX) $(OPENMPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) -lgmpxx
+
+gemm_gmp_30_mpblaslike_naive_jil: gemm_gmp_30_mpblaslike_naive_jil.o
 	$(CXX) $(OPENMPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) -lgmpxx
 
 gemm_gmp_31_mpblaslike_blocking: gemm_gmp_31_mpblaslike_blocking.o
