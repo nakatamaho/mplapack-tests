@@ -23,17 +23,17 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-void matmul_gmp(int m, int n, int k, mpf_class alpha, mpf_class *A, int lda, mpf_class *B, int ldb, mpf_class beta, mpf_class *C, int ldc) {
+void matmul_gmp(int m, int n, int k, mpf_class alpha, mpf_class *a, int lda, mpf_class *b, int ldb, mpf_class beta, mpf_class *c, int ldc) {
     mpf_class temp;
     for (int i = 0; i < m; ++i) {
         for (int j = 0; j < n; ++j) {
-            C[i + j * ldc] = beta * C[i + j * ldc];
+            c[i + j * ldc] = beta * c[i + j * ldc];
         }
     }
     for (int i = 0; i < m; ++i) {
         for (int j = 0; j < n; ++j) {
             for (int l = 0; l < k; ++l) {
-                C[i + j * ldc] += alpha * A[i + l * lda] * B[l + j * ldb];
+                c[i + j * ldc] += alpha * a[i + l * lda] * b[l + j * ldb];
             }
         }
     }
@@ -52,45 +52,45 @@ int main(int argc, char *argv[]) {
     mpf_set_default_prec(prec);
     int lda = k, ldb = n, ldc = n;
 
-    // Initialize and set random values for A, B, C, alpha, and beta
+    // Initialize and set random values for a, b, c, alpha, and beta
     gmp_randclass r(gmp_randinit_default);
     r.seed(42);
 
-    mpf_class *A = new mpf_class[m * k];
-    mpf_class *B = new mpf_class[k * n];
-    mpf_class *C = new mpf_class[m * n];
-    mpf_class *C_org = new mpf_class[m * n];
+    mpf_class *a = new mpf_class[m * k];
+    mpf_class *b = new mpf_class[k * n];
+    mpf_class *c = new mpf_class[m * n];
+    mpf_class *c_org = new mpf_class[m * n];
     mpf_class alpha, beta;
 
     alpha = r.get_f(prec);
     beta = r.get_f(prec);
     for (int i = 0; i < m * k; i++) {
-        A[i] = r.get_f(prec);
+        a[i] = r.get_f(prec);
     }
 
     for (int i = 0; i < k * n; i++) {
-        B[i] = r.get_f(prec);
+        b[i] = r.get_f(prec);
     }
 
     for (int i = 0; i < m * n; i++) {
-        C_org[i] = r.get_f(prec);
-        C[i] = C_org[i];
+        c_org[i] = r.get_f(prec);
+        c[i] = c_org[i];
     }
 
-    // Compute C = alpha AB + beta C \n");
+    // compute c = alpha ab + beta c \n");
     auto start = std::chrono::high_resolution_clock::now();
-    matmul_gmp(m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+    matmul_gmp(m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
 
     char transa = 'n', transb = 'n';
-    Rgemm(&transa, &transb, (long)m, (long)n, (long)k, alpha, A, (long)lda, B, (long)ldb, beta, C_org, (long)ldc);
+    Rgemm(&transa, &transb, (long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c_org, (long)ldc);
 
     mpf_class tmp;
     tmp = 0.0;
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            tmp += abs(C_org[i + j * ldc] - C[i  + j * ldc]);
+            tmp += abs(c_org[i + j * ldc] - c[i  + j * ldc]);
         }
     }
 
@@ -99,10 +99,10 @@ int main(int argc, char *argv[]) {
     gmp_printf("   %.F3e", tmp);
     printf("     %5.3f\n", elapsed_seconds.count());
 
-    delete[] A;
-    delete[] B;
-    delete[] C;
-    delete[] C_org;
+    delete[] a;
+    delete[] b;
+    delete[] c;
+    delete[] c_org;
 
     return 0;
 }
