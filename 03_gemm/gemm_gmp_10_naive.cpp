@@ -115,9 +115,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    printf("    m     n     k     MFLOPS      diff     elapsed(s)\n");
+    printf("    m     n     k     MFLOPS      DIFF     Elapsed(s)\n");
     printf("%5d %5d %5d %10.3f", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS);
-    gmp_printf("   %.f3e", tmp);
+    gmp_printf("   %.F3e", tmp);
     printf("     %5.3f\n", elapsed_seconds.count());
 
     // clear memory
