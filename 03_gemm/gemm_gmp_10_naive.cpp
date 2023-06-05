@@ -3,6 +3,12 @@
 #include <stdio.h>
 #include <gmp.h>
 #include <assert.h>
+#define CHECKWITHRGEMM
+
+#if defined CHECKWITHRGEMM
+    #include <gmpxx.h>
+#endif
+
 #include <time.h>
 
 #define MFLOPS 1e-6
@@ -20,7 +26,7 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-void matmul_gmp(long m, long n, long k, mpf_t alpha, mpf_t *A, long lda, mpf_t *B, long ldb, mpf_t beta, mpf_t *C, long ldc) {
+void matmul_gmp(long m, long n, long k, mpf_t alpha, mpf_t *a, long lda, mpf_t *b, long ldb, mpf_t beta, mpf_t *c, long ldc) {
     mpf_t sum, temp;
     mpf_init(sum);
     mpf_init(temp);
@@ -29,12 +35,12 @@ void matmul_gmp(long m, long n, long k, mpf_t alpha, mpf_t *A, long lda, mpf_t *
         for (long i = 0; i < m; ++i) {
             mpf_set_ui(sum, 0);
             for (long l = 0; l < k; ++l) {
-                mpf_mul(temp, A[i + l * lda], B[l + j * ldb]);
+                mpf_mul(temp, a[i + l * lda], b[l + j * ldb]);
                 mpf_add(sum, sum, temp);
             }
             mpf_mul(sum, sum, alpha);
-            mpf_mul(C[i + j * ldc], C[i + j * ldc], beta);
-            mpf_add(C[i + j * ldc], C[i + j * ldc], sum);
+            mpf_mul(c[i + j * ldc], c[i + j * ldc], beta);
+            mpf_add(c[i + j * ldc], c[i + j * ldc], sum);
         }
     }
     mpf_clear(sum);
@@ -54,12 +60,12 @@ int main(int argc, char *argv[]) {
     mpf_set_default_prec(prec);
     int lda = k, ldb = n, ldc = n;
 
-    mpf_t *A = (mpf_t *)malloc(m * k * sizeof(mpf_t));
-    mpf_t *B = (mpf_t *)malloc(k * n * sizeof(mpf_t));
-    mpf_t *C = (mpf_t *)malloc(m * n * sizeof(mpf_t));
+    mpf_t *a = (mpf_t *)malloc(m * k * sizeof(mpf_t));
+    mpf_t *b = (mpf_t *)malloc(k * n * sizeof(mpf_t));
+    mpf_t *c = (mpf_t *)malloc(m * n * sizeof(mpf_t));
     mpf_t alpha, beta;
 
-    // Initialize and set random values for A, B, C, alpha, and beta
+    // Initialize and set random values for a, b, c, alpha, and beta
     gmp_randstate_t state;
     gmp_randinit_default(state);
     gmp_randseed_ui(state, 42);
@@ -70,18 +76,18 @@ int main(int argc, char *argv[]) {
     mpf_urandomb(beta, state, prec);
 
     for (int i = 0; i < m * k; i++) {
-        mpf_init(A[i]);
-        mpf_urandomb(A[i], state, prec);
+        mpf_init(a[i]);
+        mpf_urandomb(a[i], state, prec);
     }
 
     for (int i = 0; i < k * n; i++) {
-        mpf_init(B[i]);
-        mpf_urandomb(B[i], state, prec);
+        mpf_init(b[i]);
+        mpf_urandomb(b[i], state, prec);
     }
 
     for (int i = 0; i < m * n; i++) {
-        mpf_init(C[i]);
-        mpf_urandomb(C[i], state, prec);
+        mpf_init(c[i]);
+        mpf_urandomb(c[i], state, prec);
     }
 
 #ifdef _PRINT
@@ -89,33 +95,33 @@ int main(int argc, char *argv[]) {
     gmp_printf("alpha = %10.128Ff\n", alpha);
     gmp_printf("beta = %10.128Ff\n", beta);
 
-    printf("A = \n");
+    printf("a = \n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < k; j++) {
-            gmp_printf(" %10.128Ff\n", A[i + j * lda]);
+            gmp_printf(" %10.128Ff\n", a[i + j * lda]);
         }
         printf("\n");
     }
-    printf("B = \n");
+    printf("b = \n");
     for (int i = 0; i < k; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", B[i + j * ldb]);
+            gmp_printf(" %10.128Ff\n", b[i + j * ldb]);
         }
         printf("\n");
     }
-    printf("C = \n");
+    printf("c = \n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", C[i + j * ldc]);
+            gmp_printf(" %10.128Ff\n", c[i + j * ldc]);
         }
         printf("\n");
     }
     ////////////////////////////////////////////////
 #endif
 
-    // Compute C = alpha AB + beta C \n");
+    // Compute c = alpha ab + beta c \n");
     auto start = std::chrono::high_resolution_clock::now();
-    matmul_gmp((long)m, (long)n, (long)k, alpha, A, (long)lda, B, (long)ldb, beta, C, (long)ldc);
+    matmul_gmp((long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c, (long)ldc);
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end - start;
@@ -125,10 +131,10 @@ int main(int argc, char *argv[]) {
 
 #ifdef _PRINT
     // Print the result
-    printf("C = alpha AB + beta C\n");
+    printf("c = alpha ab + beta c\n");
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", C[i + j * ldc]);
+            gmp_printf(" %10.128Ff\n", c[i + j * ldc]);
         }
         printf("\n");
     }
@@ -136,24 +142,24 @@ int main(int argc, char *argv[]) {
 
     // Clear memory
     for (int i = 0; i < m * k; i++) {
-        mpf_clear(A[i]);
+        mpf_clear(a[i]);
     }
 
     for (int i = 0; i < k * n; i++) {
-        mpf_clear(B[i]);
+        mpf_clear(b[i]);
     }
 
     for (int i = 0; i < m * n; i++) {
-        mpf_clear(C[i]);
+        mpf_clear(c[i]);
     }
 
     mpf_clear(alpha);
     mpf_clear(beta);
     gmp_randclear(state);
 
-    free(A);
-    free(B);
-    free(C);
+    free(a);
+    free(b);
+    free(c);
 
     return 0;
 }
