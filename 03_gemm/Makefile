@@ -14,7 +14,7 @@ gemm_gmp_20_mpblas gemm_gmp_21_mpblas_openmp \
 gemm_gmp_30_mpblaslike_naive_ijl \
 gemm_gmp_30_mpblaslike_naive_jil \
 gemm_gmp_30_mpblaslike_naive_jli \
-gemm_gmp_30_mpblaslike_naive2_jli \
+gemm_gmp_30_mpblaslike_naive_jli_2 \
 gemm_gmp_31_mpblaslike_blocking gemm_gmp_32_mpblaslike_blocking_openmp \
 gemm_mpfr_10_naive #gemm_mpfr_11_fma
 
@@ -23,7 +23,7 @@ gemm_gmp_20_mpblas.cpp gemm_gmp_21_mpblas_openmp.cpp \
 gemm_gmp_30_mpblaslike_naive_ijl.cpp \
 gemm_gmp_30_mpblaslike_naive_jil.cpp \
 gemm_gmp_30_mpblaslike_naive_jli.cpp \
-gemm_gmp_30_mpblaslike_naive2_jli.cpp \
+gemm_gmp_30_mpblaslike_naive_jli_2.cpp \
 gemm_gmp_31_mpblaslike_blocking.cpp gemm_gmp_32_mpblaslike_blocking_openmp.cpp \
 gemm_mpfr_10_naive.cpp #gemm_mpfr_11_fma.cpp
 
@@ -57,7 +57,7 @@ gemm_gmp_30_mpblaslike_naive_jil: gemm_gmp_30_mpblaslike_naive_jil.o
 gemm_gmp_30_mpblaslike_naive_jli: gemm_gmp_30_mpblaslike_naive_jli.o
 	$(CXX) $(OPENMPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) -lgmpxx
 
-gemm_gmp_30_mpblaslike_naive2_jli: gemm_gmp_30_mpblaslike_naive2_jli.o
+gemm_gmp_30_mpblaslike_naive_jli_2: gemm_gmp_30_mpblaslike_naive_jli_2.o
 	$(CXX) $(OPENMPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) -lgmpxx
 
 gemm_gmp_31_mpblaslike_blocking: gemm_gmp_31_mpblaslike_blocking.o
