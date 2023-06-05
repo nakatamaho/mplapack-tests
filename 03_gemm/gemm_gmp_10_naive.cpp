@@ -3,11 +3,9 @@
 #include <stdio.h>
 #include <gmp.h>
 #include <assert.h>
-#define CHECKWITHRGEMM
 
-#if defined CHECKWITHRGEMM
-    #include <gmpxx.h>
-#endif
+#include <gmpxx.h>
+#include "Rgemm.hpp"
 
 #include <time.h>
 
@@ -65,6 +63,11 @@ int main(int argc, char *argv[]) {
     mpf_t *c = (mpf_t *)malloc(m * n * sizeof(mpf_t));
     mpf_t alpha, beta;
 
+    mpf_class *_a = new mpf_class[m * k];
+    mpf_class *_b = new mpf_class[k * n];
+    mpf_class *_c = new mpf_class[m * n];
+    mpf_class _alpha, _beta;
+
     // Initialize and set random values for a, b, c, alpha, and beta
     gmp_randstate_t state;
     gmp_randinit_default(state);
@@ -74,73 +77,50 @@ int main(int argc, char *argv[]) {
     mpf_urandomb(alpha, state, prec);
     mpf_init(beta);
     mpf_urandomb(beta, state, prec);
+    _alpha = mpf_class(alpha);
+    _beta = mpf_class(beta);
 
     for (int i = 0; i < m * k; i++) {
         mpf_init(a[i]);
         mpf_urandomb(a[i], state, prec);
+        _a[i] = mpf_class(a[i]);
     }
 
     for (int i = 0; i < k * n; i++) {
         mpf_init(b[i]);
         mpf_urandomb(b[i], state, prec);
+        _b[i] = mpf_class(b[i]);
     }
 
     for (int i = 0; i < m * n; i++) {
         mpf_init(c[i]);
         mpf_urandomb(c[i], state, prec);
+        _c[i] = mpf_class(c[i]);
     }
 
-#ifdef _PRINT
-    ////////////////////////////////////////////////
-    gmp_printf("alpha = %10.128Ff\n", alpha);
-    gmp_printf("beta = %10.128Ff\n", beta);
-
-    printf("a = \n");
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < k; j++) {
-            gmp_printf(" %10.128Ff\n", a[i + j * lda]);
-        }
-        printf("\n");
-    }
-    printf("b = \n");
-    for (int i = 0; i < k; i++) {
-        for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", b[i + j * ldb]);
-        }
-        printf("\n");
-    }
-    printf("c = \n");
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", c[i + j * ldc]);
-        }
-        printf("\n");
-    }
-    ////////////////////////////////////////////////
-#endif
-
-    // Compute c = alpha ab + beta c \n");
+    // compute c = alpha ab + beta c \n");
     auto start = std::chrono::high_resolution_clock::now();
     matmul_gmp((long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c, (long)ldc);
     auto end = std::chrono::high_resolution_clock::now();
-
     std::chrono::duration<double> elapsed_seconds = end - start;
-    std::cout << "Elapsed time: " << elapsed_seconds.count() << " s" << std::endl;
-    printf("    m     n     k     MFLOPS  Elapsed(s) \n");
-    printf("%5d %5d %5d %10.3f  %5.3f\n", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS, elapsed_seconds.count());
 
-#ifdef _PRINT
-    // Print the result
-    printf("c = alpha ab + beta c\n");
+    char transa = 'n', transb = 'n';
+    Rgemm(&transa, &transb, (long)m, (long)n, (long)k, _alpha, _a, (long)lda, _b, (long)ldb, _beta, _c, (long)ldc);
+
+    mpf_class tmp;
+    tmp = 0.0;
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            gmp_printf(" %10.128Ff\n", c[i + j * ldc]);
+            tmp += abs(mpf_class(c[i + j * ldc]) - _c[i + j * ldc]);
         }
-        printf("\n");
     }
-#endif
 
-    // Clear memory
+    printf("    m     n     k     MFLOPS      diff     elapsed(s)\n");
+    printf("%5d %5d %5d %10.3f", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS);
+    gmp_printf("   %.f3e", tmp);
+    printf("     %5.3f\n", elapsed_seconds.count());
+
+    // clear memory
     for (int i = 0; i < m * k; i++) {
         mpf_clear(a[i]);
     }
@@ -160,6 +140,9 @@ int main(int argc, char *argv[]) {
     free(a);
     free(b);
     free(c);
+    delete[] _a;
+    delete[] _b;
+    delete[] _c;
 
     return 0;
 }

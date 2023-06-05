@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     tmp = 0.0;
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            tmp += abs(c_org[i + j * ldc] - c[i  + j * ldc]);
+            tmp += abs(c_org[i + j * ldc] - c[i + j * ldc]);
         }
     }
 

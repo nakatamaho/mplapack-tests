@@ -46,7 +46,7 @@ void matmul_gmp(long m, long n, long k, mpf_class alpha, mpf_class *A, long lda,
             C[i + j * ldc] = beta * C[i + j * ldc];
         }
     }
-    #pragma omp parallel for
+#pragma omp parallel for
     for (long i0 = 0; i0 < m; i0 += BLOCK_X) {
         for (long j0 = 0; j0 < n; j0 += BLOCK_Y) {
             matmul_gmp_block(i0, j0, m, n, k, alpha, A, lda, B, ldb, C, ldc);
