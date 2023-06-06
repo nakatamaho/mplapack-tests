@@ -30,16 +30,16 @@ void matmul_gmp(long m, long n, long k, mpf_t alpha, mpf_t *a, long lda, mpf_t *
     mpf_init(temp);
     mpf_init(sum);
 
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
+    for (long i = 0; i < m; ++i) {
+        for (long j = 0; j < n; ++j) {
             mpf_mul(c[i + j * ldc], beta, c[i + j * ldc]);
         }
     }
-    for (int j = 0; j < n; ++j) {
-        for (int l = 0; l < k; ++l) {
+    for (long j = 0; j < n; ++j) {
+        for (long l = 0; l < k; ++l) {
             mpf_mul(temp, alpha, b[l + j * ldb]);
             mpf_set_ui(sum, 0);
-            for (int i = 0; i < m; ++i) {
+            for (long i = 0; i < m; ++i) {
                 mpf_mul(sum, temp, a[i + l * lda]);
                 mpf_add(c[i + j * ldc], c[i + j * ldc], sum);
             }
