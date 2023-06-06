@@ -23,16 +23,14 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-#define BLOCK_X 4
-#define BLOCK_Y 4
-
 // Blocked matrix multiplication
-void matmul_gmp_block(long i0, long j0, long m, long n, long k, mpf_class alpha, mpf_class *a, long lda, mpf_class *b, long ldb, mpf_class *c, long ldc) {
+void blockMatMul(int blockSize, int iStart, int jStart, int kStart, int m, int n, int k, mpf_class alpha, mpf_class *a, int lda, mpf_class *b, int ldb, mpf_class beta, mpf_class *c, int ldc) {
     mpf_class temp;
-    for (long j = j0; j < std::min(j0 + BLOCK_Y, n); ++j) {
-        for (long l = 0; l < k; l++) {
+
+    for (int j = jStart; j < std::min(jStart + blockSize, n); ++j) {
+        for (int l = kStart; l < std::min(kStart + blockSize, k); ++l) {
             temp = alpha * b[l + j * ldb];
-            for (long i = i0; i < std::min(i0 + BLOCK_X, m); ++i) {
+            for (int i = iStart; i < std::min(iStart + blockSize, m); ++i) {
                 c[i + j * ldc] += temp * a[i + l * lda];
             }
         }
@@ -46,9 +44,12 @@ void matmul_gmp(long m, long n, long k, mpf_class alpha, mpf_class *a, long lda,
             c[i + j * ldc] = beta * c[i + j * ldc];
         }
     }
-    for (long i0 = 0; i0 < m; i0 += BLOCK_X) {
-        for (long j0 = 0; j0 < n; j0 += BLOCK_Y) {
-            matmul_gmp_block(i0, j0, m, n, k, alpha, a, lda, b, ldb, c, ldc);
+    long blockSize = 2;
+    for (long ii = 0; ii < m; ii += blockSize) {
+        for (long jj = 0; jj < n; jj += blockSize) {
+            for (long kk = 0; kk < k; kk += blockSize) {
+                blockMatMul(blockSize, ii, jj, kk, m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
+            }
         }
     }
 }

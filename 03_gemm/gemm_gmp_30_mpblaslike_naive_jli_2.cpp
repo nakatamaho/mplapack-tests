@@ -25,8 +25,8 @@ double flops_gemm(int k_i, int m_i, int n_i) {
 
 void matmul_gmp(int m, int n, int k, mpf_class alpha, mpf_class *a, int lda, mpf_class *b, int ldb, mpf_class beta, mpf_class *c, int ldc) {
     mpf_class temp;
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
+    for (int j = 0; j < n; ++j) {
+        for (int i = 0; i < m; ++i) {
             c[i + j * ldc] = beta * c[i + j * ldc];
         }
     }
