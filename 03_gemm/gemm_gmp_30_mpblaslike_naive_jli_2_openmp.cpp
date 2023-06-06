@@ -4,8 +4,8 @@
 #include <gmp.h>
 #include <assert.h>
 #include <time.h>
+#include <omp.h>
 #include <gmpxx.h>
-
 #include "Rgemm.hpp"
 
 #define MFLOPS 1e-6
@@ -25,15 +25,18 @@ double flops_gemm(int k_i, int m_i, int n_i) {
 
 void matmul_gmp(long m, long n, long k, mpf_class alpha, mpf_class *a, long lda, mpf_class *b, long ldb, mpf_class beta, mpf_class *c, long ldc) {
     mpf_class temp;
-    for (long j = 0; j < n; ++j) {
-        for (long i = 0; i < m; ++i) {
+    long i, j, l;
+    for (j = 0; j < n; ++j) {
+        for (i = 0; i < m; ++i) {
             c[i + j * ldc] = beta * c[i + j * ldc];
         }
     }
-    for (long j = 0; j < n; ++j) {
-        for (long l = 0; l < k; ++l) {
+
+#pragma omp parallel for private(i, j, l, temp)
+    for (j = 0; j < n; ++j) {
+        for (l = 0; l < k; ++l) {
             temp = alpha * b[l + j * ldb];
-            for (long i = 0; i < m; ++i) {
+            for (i = 0; i < m; ++i) {
                 c[i + j * ldc] += temp * a[i + l * lda];
             }
         }
