@@ -5,7 +5,7 @@ MPLAPACK_HOME=/home/docker/MPLAPACK
 #MPLAPACK_HOME=/Volumes/Users/maho/MPLAPACK
 
 OPENMPFLAGS = -Wall -O2 -march=native
-CXXFLAGS = -I$(MPLAPACK_HOME)/include -fopenmp -Wall -funroll-loops -O2 -march=native
+CXXFLAGS = -I$(MPLAPACK_HOME)/include -fopenmp -Wall -funroll-loops -O2 -march=native -fopt-info-vec-optimized
 LDFLAGS = -L$(MPLAPACK_HOME)/lib -lgmp -Wl,-rpath,$(MPLAPACK_HOME)/lib
 LDFLAGSMPFR = -L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/lib
 
@@ -19,6 +19,7 @@ gemm_gmp_30_mpblaslike_naive_jil \
 gemm_gmp_30_mpblaslike_naive_jli \
 gemm_gmp_30_mpblaslike_naive_jli_2 \
 gemm_gmp_30_mpblaslike_naive_jli_2_openmp \
+gemm_gmp_30_mpblaslike_naive_jli_3 \
 gemm_gmp_31_mpblaslike_blocking gemm_gmp_32_mpblaslike_blocking_openmp \
 gemm_mpfr_10_naive #gemm_mpfr_11_fma
 
@@ -32,6 +33,7 @@ gemm_gmp_30_mpblaslike_naive_jil.cpp \
 gemm_gmp_30_mpblaslike_naive_jli.cpp \
 gemm_gmp_30_mpblaslike_naive_jli_2.cpp \
 gemm_gmp_30_mpblaslike_naive_jli_2_openmp.cpp \
+gemm_gmp_30_mpblaslike_naive_jli_3.cpp \
 gemm_gmp_31_mpblaslike_blocking.cpp gemm_gmp_32_mpblaslike_blocking_openmp.cpp \
 gemm_mpfr_10_naive.cpp #gemm_mpfr_11_fma.cpp
 
@@ -75,6 +77,9 @@ gemm_gmp_30_mpblaslike_naive_jli: gemm_gmp_30_mpblaslike_naive_jli.o
 	$(CXX) $(OPENMPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) -lgmpxx
 
 gemm_gmp_30_mpblaslike_naive_jli_2: gemm_gmp_30_mpblaslike_naive_jli_2.o
+	$(CXX) $(OPENMPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) -lgmpxx
+
+gemm_gmp_30_mpblaslike_naive_jli_3: gemm_gmp_30_mpblaslike_naive_jli_3.o
 	$(CXX) $(OPENMPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) -lgmpxx
 
 gemm_gmp_30_mpblaslike_naive_jli_2_openmp: gemm_gmp_30_mpblaslike_naive_jli_2_openmp.o

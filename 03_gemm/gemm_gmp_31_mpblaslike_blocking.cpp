@@ -23,40 +23,37 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-// Blocked matrix multiplication
-void blockMatMul(int blockSize, int iStart, int jStart, int kStart, int m, int n, int k, mpf_class alpha, mpf_class *a, int lda, mpf_class *b, int ldb, mpf_class beta, mpf_class *c, int ldc) {
+// Matrix multiplication kernel with blocking
+void matmul_gmp(long m, long n, long k, mpf_class alpha, mpf_class *a, long lda, mpf_class *b, long ldb, mpf_class beta, mpf_class *c, long ldc, long BLOCK_SIZE) {
     mpf_class temp;
 
-    for (int j = jStart; j < std::min(jStart + blockSize, n); ++j) {
-        for (int l = kStart; l < std::min(kStart + blockSize, k); ++l) {
-            temp = alpha * b[l + j * ldb];
-            for (int i = iStart; i < std::min(iStart + blockSize, m); ++i) {
-                c[i + j * ldc] += temp * a[i + l * lda];
-            }
-        }
-    }
-}
-
-// Matrix multiplication kernel with blocking
-void matmul_gmp(long m, long n, long k, mpf_class alpha, mpf_class *a, long lda, mpf_class *b, long ldb, mpf_class beta, mpf_class *c, long ldc) {
-    for (long i = 0; i < m; ++i) {
-        for (long j = 0; j < n; ++j) {
+    for (long j = 0; j < n; ++j) {
+        for (long i = 0; i < m; ++i) {
             c[i + j * ldc] = beta * c[i + j * ldc];
         }
     }
-    long blockSize = 2;
-    for (long ii = 0; ii < m; ii += blockSize) {
-        for (long jj = 0; jj < n; jj += blockSize) {
-            for (long kk = 0; kk < k; kk += blockSize) {
-                blockMatMul(blockSize, ii, jj, kk, m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
+
+    for (long j = 0; j < n; j += BLOCK_SIZE) {
+        for (long l = 0; l < k; l += BLOCK_SIZE) {
+            for (long i = 0; i < m; i += BLOCK_SIZE) {
+
+                // kernel
+                for (long jj = j; jj < std::min(j + BLOCK_SIZE, n); ++jj) {
+                    for (long ll = l; ll < std::min(l + BLOCK_SIZE, k); ++ll) {
+                        temp = alpha * b[ll + jj * ldb];
+                        for (long ii = i; ii < std::min(i + BLOCK_SIZE, m); ++ii) {
+                            c[ii + jj * ldc] += temp * a[ii + ll * lda];
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 5) {
-        fprintf(stderr, "Usage: %s <m> <k> <n> <prec>\n", argv[0]);
+    if (argc != 6) {
+        fprintf(stderr, "Usage: %s <m> <k> <n> <prec> <blocksize>\n", argv[0]);
         return 1;
     }
 
@@ -64,6 +61,7 @@ int main(int argc, char *argv[]) {
     int k = atoi(argv[2]);
     int n = atoi(argv[3]);
     int prec = atoi(argv[4]);
+    long block_size = atoi(argv[5]);
     mpf_set_default_prec(prec);
     int lda = k, ldb = n, ldc = n;
 
@@ -94,7 +92,7 @@ int main(int argc, char *argv[]) {
 
     // Compute c = alpha ab + beta c \n");
     auto start = std::chrono::high_resolution_clock::now();
-    matmul_gmp(m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
+    matmul_gmp(m, n, k, alpha, a, lda, b, ldb, beta, c, ldc, block_size);
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
 
