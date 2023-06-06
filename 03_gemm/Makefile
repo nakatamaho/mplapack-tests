@@ -11,6 +11,7 @@ LDFLAGSMPFR = -L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/li
 
 TARGET = gemm_gmp_10_naive \
 gemm_gmp_11_jli_2 \
+gemm_gmp_11_jli_3 \
 gemm_gmp_20_mpblas gemm_gmp_21_mpblas_openmp \
 gemm_gmp_30_mpblaslike_naive_ijl \
 gemm_gmp_30_mpblaslike_naive_jil \
@@ -21,6 +22,7 @@ gemm_mpfr_10_naive #gemm_mpfr_11_fma
 
 SRCS = gemm_gmp_10_naive.cpp \
 gemm_gmp_11_jli_2.cpp \
+gemm_gmp_11_jli_3.cpp \
 gemm_gmp_20_mpblas.cpp gemm_gmp_21_mpblas_openmp.cpp \
 gemm_gmp_30_mpblaslike_naive_ijl.cpp \
 gemm_gmp_30_mpblaslike_naive_jil.cpp \
@@ -39,6 +41,9 @@ gemm_gmp_10_naive: gemm_gmp_10_naive.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 gemm_gmp_11_jli_2: gemm_gmp_11_jli_2.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+gemm_gmp_11_jli_3: gemm_gmp_11_jli_3.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 gemm_mpfr_10_naive: gemm_mpfr_10_naive.o
