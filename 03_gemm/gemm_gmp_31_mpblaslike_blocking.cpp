@@ -36,8 +36,7 @@ void matmul_gmp(long m, long n, long k, mpf_class alpha, mpf_class *a, long lda,
     for (long j = 0; j < n; j += BLOCK_SIZE) {
         for (long l = 0; l < k; l += BLOCK_SIZE) {
             for (long i = 0; i < m; i += BLOCK_SIZE) {
-
-                // kernel
+////////////////////////////////////////////////////////////////////////////
                 for (long jj = j; jj < std::min(j + BLOCK_SIZE, n); ++jj) {
                     for (long ll = l; ll < std::min(l + BLOCK_SIZE, k); ++ll) {
                         temp = alpha * b[ll + jj * ldb];
@@ -46,6 +45,7 @@ void matmul_gmp(long m, long n, long k, mpf_class alpha, mpf_class *a, long lda,
                         }
                     }
                 }
+////////////////////////////////////////////////////////////////////////////
             }
         }
     }
