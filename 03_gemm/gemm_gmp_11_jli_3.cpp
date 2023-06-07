@@ -24,32 +24,67 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-void matmul_gmp(long m, long n, long k, mpf_t alpha, mpf_t *a, long lda, mpf_t *b, long ldb, mpf_t beta, mpf_t *c, long ldc) {
+void matmul_gmp(long m, long n, long k, mpf_t alpha, mpf_t *a, long lda, mpf_t *b, long ldb, mpf_t beta, mpf_t *c, long ldc, long block_size) {
     mpf_t temp;
+    mpf_t sum;
     mpf_init(temp);
+    mpf_init(sum);
+    long i, j, l;
+    long ii, jj, ll;
 
-    for (long i = 0; i < m; ++i) {
-        for (long j = 0; j < n; ++j) {
+    mpf_t *block_a = (mpf_t *)malloc(block_size * block_size * sizeof(mpf_t));
+    mpf_t *block_b = (mpf_t *)malloc(block_size * block_size * sizeof(mpf_t));
+
+    for (i = 0; i < block_size * block_size; i++) {
+        mpf_init(block_a[i]);
+        mpf_init(block_b[i]);
+    }
+
+    for (j = 0; j < n; j++) {
+        for (i = 0; i < m; i++) {
             mpf_mul(c[i + j * ldc], beta, c[i + j * ldc]);
         }
     }
 
-    for (long j = 0; j < n; ++j) {
-        for (long l = 0; l < k; ++l) {
-            mpf_set_ui(temp, 0);
-            mpf_mul(temp, alpha, b[l + j * ldb]);
-            for (long i = 0; i < m; ++i) {
-                mpf_mul(temp, temp, a[i + l * lda]);
-                mpf_add(c[i + j * ldc], c[i + j * ldc], temp);
+    for (j = 0; j < n; j += block_size) {
+        for (l = 0; l < k; l += block_size) {
+            // Copy blocks of a and b into block_a and block_b
+            for (ii = 0; ii < block_size; ii++) {
+                for (jj = 0; jj < block_size; jj++) {
+                    if (ii + l < k && jj + j < n) {
+                        mpf_set(block_b[ii + jj * block_size], b[(ii + l) + (jj + j) * ldb]);
+                    }
+                    if (ii + l < m) {
+                        mpf_set(block_a[ii + jj * block_size], a[(ii + l) + jj * lda]);
+                    }
+                }
+            }
+
+            for (jj = 0; jj < block_size && jj + j < n; jj++) {
+                mpf_mul(temp, alpha, block_b[jj * block_size]);
+                for (ii = 0; ii < m; ii++) {
+                    mpf_mul(sum, temp, block_a[ii]);
+                    mpf_add(c[ii + (jj + j) * ldc], c[ii + (jj + j) * ldc], sum);
+                }
             }
         }
     }
+
+    for (i = 0; i < block_size * block_size; i++) {
+        mpf_clear(block_a[i]);
+        mpf_clear(block_b[i]);
+    }
+
+    free(block_a);
+    free(block_b);
+
+    mpf_clear(sum);
     mpf_clear(temp);
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 5) {
-        fprintf(stderr, "Usage: %s <m> <k> <n> <prec>\n", argv[0]);
+    if (argc != 6) {
+        fprintf(stderr, "Usage: %s <m> <k> <n> <prec> <block_size>\n", argv[0]);
         return 1;
     }
 
@@ -57,6 +92,7 @@ int main(int argc, char *argv[]) {
     int k = atoi(argv[2]);
     int n = atoi(argv[3]);
     int prec = atoi(argv[4]);
+    int block_size = atoi(argv[5]);
     mpf_set_default_prec(prec);
     int lda = k, ldb = n, ldc = n;
 
@@ -102,7 +138,7 @@ int main(int argc, char *argv[]) {
 
     // compute c = alpha ab + beta c \n");
     auto start = std::chrono::high_resolution_clock::now();
-    matmul_gmp((long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c, (long)ldc);
+    matmul_gmp((long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c, (long)ldc, block_size);
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
 
