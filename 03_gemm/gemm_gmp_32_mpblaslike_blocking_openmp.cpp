@@ -26,16 +26,18 @@ double flops_gemm(int k_i, int m_i, int n_i) {
 // Matrix multiplication kernel with blocking
 void matmul_gmp(long m, long n, long k, mpf_class alpha, mpf_class *a, long lda, mpf_class *b, long ldb, mpf_class beta, mpf_class *c, long ldc, long BLOCK_SIZE) {
     mpf_class temp;
-
-    for (long j = 0; j < n; ++j) {
-        for (long i = 0; i < m; ++i) {
+    long i, j, l;
+#pragma omp parallel for private(i, j)
+    for (j = 0; j < n; ++j) {
+        for (i = 0; i < m; ++i) {
             c[i + j * ldc] = beta * c[i + j * ldc];
         }
     }
 
-    for (long j = 0; j < n; j += BLOCK_SIZE) {
-        for (long l = 0; l < k; l += BLOCK_SIZE) {
-            for (long i = 0; i < m; i += BLOCK_SIZE) {
+#pragma omp parallel for private(i, j, l, temp)
+    for (j = 0; j < n; j += BLOCK_SIZE) {
+        for (l = 0; l < k; l += BLOCK_SIZE) {
+            for (i = 0; i < m; i += BLOCK_SIZE) {
 ////////////////////////////////////////////////////////////////////////////
                 for (long jj = j; jj < std::min(j + BLOCK_SIZE, n); ++jj) {
                     for (long ll = l; ll < std::min(l + BLOCK_SIZE, k); ++ll) {
