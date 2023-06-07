@@ -8,7 +8,7 @@
 
 #include "Rgemm.hpp"
 
-#define BLOCK_SIZE 72
+#define BLOCK_SIZE 32
 
 #define MFLOPS 1e-6
 
@@ -77,8 +77,8 @@ void matmul_gmp(long m, long n, long k, mpf_class alpha, mpf_class *a, long lda,
             c[i + j * ldc] = beta * c[i + j * ldc];
         }
     }
-    mpf_class block_a[BLOCK_SIZE * BLOCK_SIZE];
-    mpf_class block_b[BLOCK_SIZE * BLOCK_SIZE];
+    alignas(alignof(mpf_class)) mpf_class block_a[BLOCK_SIZE * BLOCK_SIZE];
+    alignas(alignof(mpf_class)) mpf_class block_b[BLOCK_SIZE * BLOCK_SIZE];
 
     for (j = 0; j < n; j += BLOCK_SIZE) {
         for (l = 0; l < k; l += BLOCK_SIZE) {
