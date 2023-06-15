@@ -8,8 +8,11 @@ OPENMPFLAGS = -Wall -O2 -march=native
 CXXFLAGS = -I$(MPLAPACK_HOME)/include -fopenmp -Wall -funroll-loops -O2 -march=native -fopt-info-vec-optimized
 LDFLAGS = -L$(MPLAPACK_HOME)/lib -lgmp -Wl,-rpath,$(MPLAPACK_HOME)/lib
 LDFLAGSMPFR = -L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/lib
+LDFLAGSDOUBLE = #-L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/lib
 
-TARGET = gemm_gmp_10_naive \
+TARGET = \
+gemm_double_10_naive \
+gemm_gmp_10_naive \
 gemm_gmp_11_jli_2 \
 gemm_gmp_11_jli_2_openmp \
 gemm_gmp_11_jli_3 \
@@ -42,6 +45,9 @@ OBJS = $(SRCS:.cpp=.o)
 .PHONY: all clean
 
 all: $(TARGET)
+
+gemm_double_10_naive: gemm_double_10_naive.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 gemm_gmp_10_naive: gemm_gmp_10_naive.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
