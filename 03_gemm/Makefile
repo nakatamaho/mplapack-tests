@@ -12,6 +12,7 @@ LDFLAGSDOUBLE = #-L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)
 
 TARGET = \
 gemm_double_10_naive \
+gemm_double_20_mpblas \
 gemm_gmp_10_naive \
 gemm_gmp_11_jli_2 \
 gemm_gmp_11_jli_2_openmp \
@@ -26,7 +27,10 @@ gemm_gmp_30_mpblaslike_naive_jli_3 \
 gemm_gmp_31_mpblaslike_blocking gemm_gmp_32_mpblaslike_blocking_openmp \
 gemm_mpfr_10_naive #gemm_mpfr_11_fma
 
-SRCS = gemm_gmp_10_naive.cpp \
+SRCS = \
+gemm_double_10_naive.cpp \
+gemm_double_20_mpblas.cpp \
+gemm_gmp_10_naive.cpp \
 gemm_gmp_11_jli_2.cpp \
 gemm_gmp_11_jli_2_openmp.cpp \
 gemm_gmp_11_jli_3.cpp \
@@ -47,6 +51,9 @@ OBJS = $(SRCS:.cpp=.o)
 all: $(TARGET)
 
 gemm_double_10_naive: gemm_double_10_naive.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+gemm_double_20_mpblas: gemm_double_20_mpblas.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 gemm_gmp_10_naive: gemm_gmp_10_naive.o
