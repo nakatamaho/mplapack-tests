@@ -5,7 +5,7 @@ MPLAPACK_HOME=/home/docker/MPLAPACK
 #MPLAPACK_HOME=/Volumes/Users/maho/MPLAPACK
 
 OPENMPFLAGS = -Wall -O2 -march=native
-CXXFLAGS = -I$(MPLAPACK_HOME)/include -fopenmp -Wall -funroll-loops -O2 -march=native -fopt-info-vec-optimized
+CXXFLAGS = -I$(MPLAPACK_HOME)/include -fopenmp -Wall -funroll-loops -O3 -march=native -ffast-math
 LDFLAGS = -L$(MPLAPACK_HOME)/lib -lgmp -Wl,-rpath,$(MPLAPACK_HOME)/lib
 LDFLAGSMPFR = -L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/lib
 LDFLAGSDOUBLE = #-L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/lib
@@ -13,6 +13,7 @@ LDFLAGSDOUBLE = #-L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)
 TARGET = \
 gemm_double_10_naive \
 gemm_double_20_mpblas \
+gemm_double_11_vectorization \
 gemm_gmp_10_naive \
 gemm_gmp_11_jli_2 \
 gemm_gmp_11_jli_2_openmp \
@@ -29,6 +30,7 @@ gemm_mpfr_10_naive #gemm_mpfr_11_fma
 
 SRCS = \
 gemm_double_10_naive.cpp \
+gemm_double_11_vectorization.cpp \
 gemm_double_20_mpblas.cpp \
 gemm_gmp_10_naive.cpp \
 gemm_gmp_11_jli_2.cpp \
@@ -51,6 +53,9 @@ OBJS = $(SRCS:.cpp=.o)
 all: $(TARGET)
 
 gemm_double_10_naive: gemm_double_10_naive.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+gemm_double_11_vectorization: gemm_double_11_vectorization.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 gemm_double_20_mpblas: gemm_double_20_mpblas.o

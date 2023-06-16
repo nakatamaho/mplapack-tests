@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
     int n = atoi(argv[3]);
     int prec = atoi(argv[4]);
     mpf_set_default_prec(prec);
-    int lda = k, ldb = n, ldc = n;
+    int lda = m, ldb = k, ldc = m;
 
     mpf_t *A = (mpf_t *)malloc(m * k * sizeof(mpf_t));
     mpf_t *B = (mpf_t *)malloc(k * n * sizeof(mpf_t));

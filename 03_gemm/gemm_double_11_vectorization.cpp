@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 #include <random>
 #include <chrono>
 #include <stdio.h>
@@ -22,19 +23,48 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-void matmul_double(int m, int n, int k, double alpha, double *a, int lda, double *b, int ldb, double beta, double *c, int ldc) {
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            c[i + j * ldc] = beta * c[i + j * ldc];
+// AVX2 = 256bytes; a vector of 256 / 64 = 4 doubles = 4 * 8 = 32 bytes; 
+typedef double vec __attribute__((vector_size(32)));
+
+//alloc doubles in 64 bit alignment
+vec *alloc(int n) {
+    vec *ptr = (vec *)std::aligned_alloc(64, 32 * n);
+    memset(ptr, 0, 32 * n);
+    return ptr;
+}
+
+void matmul_double(long m, long n, long k, double alpha, double *a, long lda, double *b, long ldb, double beta, double *c, long ldc) {
+    long nB = (k + 3) / 4; // number of 4-element vectors in a row (rounded up)
+
+    vec *A = alloc(m * nB);
+    vec *B = alloc(k * nB);
+
+    for (long j = 0; j < k; j++) {
+        for (long i = 0; i < m; i++) {
+            A[i * nB + j / 4][j % 4] = a[i + j * lda];
         }
     }
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            for (int l = 0; l < k; ++l) {
-                c[i + j * ldc] += alpha * a[i + l * lda] * b[l + j * ldb];
-            }
+
+    for (long j = 0; j < n; j++) {
+        for (long i = 0; i < k; i++) {
+            B[i * nB + j / 4][j % 4] = b[i + j * ldb];
         }
     }
+
+    for (long i = 0; i < m; i++) {
+        for (long j = 0; j < n; j++) {
+            vec s{}; // initialize the accumulator with zeros
+
+            for (long p = 0; p < nB; p++)
+                s += A[i * nB + p] * B[j * nB + p];
+
+            for (long p = 0; p < 4; p++)
+                c[i + j * ldc] = alpha * s[p] + beta * c[i + j * ldc];
+        }
+    }
+
+    std::free(A);
+    std::free(B);
 }
 
 int main(int argc, char *argv[]) {

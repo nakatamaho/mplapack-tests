@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     int n = atoi(argv[3]);
     int prec = atoi(argv[4]);
     mpf_set_default_prec(prec);
-    int lda = k, ldb = n, ldc = n;
+    int lda = m, ldb = k, ldc = m;
 
     // Initialize and set random values for a, b, c, alpha, and beta
     gmp_randclass r(gmp_randinit_default);
