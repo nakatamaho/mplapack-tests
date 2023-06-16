@@ -1,10 +1,10 @@
 #include <iostream>
-#include <cstring>
 #include <random>
 #include <chrono>
 #include <stdio.h>
 #include <assert.h>
 #include <time.h>
+#include <cstring>
 
 #include "Rgemm_double.hpp"
 
@@ -23,48 +23,62 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-// AVX2 = 256bytes; a vector of 256 / 64 = 4 doubles = 4 * 8 = 32 bytes; 
-typedef double vec __attribute__((vector_size(32)));
+// a vector of 256 / 64 = 4 doubles
+typedef double vec __attribute__((vector_size(64)));
 
-//alloc doubles in 64 bit alignment
+// a helper function that allocates n vectors and initializes them with zeros
 vec *alloc(int n) {
-    vec *ptr = (vec *)std::aligned_alloc(64, 32 * n);
-    memset(ptr, 0, 32 * n);
+    vec *ptr = (vec *)std::aligned_alloc(64, 64 * n);
+    memset(ptr, 0, 64 * n);
     return ptr;
 }
 
-void matmul_double(long m, long n, long k, double alpha, double *a, long lda, double *b, long ldb, double beta, double *c, long ldc) {
-    long nB = (k + 3) / 4; // number of 4-element vectors in a row (rounded up)
+void matmul_double(int m, int n, int k, double alpha, double *_a, int lda, double *_b, int ldb, double beta, double *c, int ldc) {
+    if (m != n || k != n) {
+        printf("m!=n, k!=n are not supported\n");
+        exit(-1);
+    }
+    if (lda != n || ldb != n || ldc != n) {
+        printf("lda!=n, ldb!=n, ldc!=n are not supported\n");
+        exit(-1);
+    }
+    if (alpha != 1.0f) {
+        printf("alpha !=1 is supported\n");
+        exit(-1);
+    }
+    if (beta != 0.0f) {
+        printf("beta !=0 is supported\n");
+        exit(-1);
+    }
 
-    vec *A = alloc(m * nB);
-    vec *B = alloc(k * nB);
+    int nB = (n + 3) / 4; // number of 4-element vectors in a row (rounded up)
 
-    for (long j = 0; j < k; j++) {
-        for (long i = 0; i < m; i++) {
-            A[i * nB + j / 4][j % 4] = a[i + j * lda];
+    vec *a = alloc(n * nB);
+    vec *b = alloc(n * nB);
+
+    // move both matrices to the aligned region
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            a[i * nB + j / 4][j % 4] = _a[i * n + j];
+            b[i * nB + j / 4][j % 4] = _b[j * n + i]; // <- b is still transposed
         }
     }
 
-    for (long j = 0; j < n; j++) {
-        for (long i = 0; i < k; i++) {
-            B[i * nB + j / 4][j % 4] = b[i + j * ldb];
-        }
-    }
-
-    for (long i = 0; i < m; i++) {
-        for (long j = 0; j < n; j++) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
             vec s{}; // initialize the accumulator with zeros
 
-            for (long p = 0; p < nB; p++)
-                s += A[i * nB + p] * B[j * nB + p];
+            // vertical summation
+            for (int k = 0; k < nB; k++)
+                s += a[i * nB + k] * b[j * nB + k];
 
-            for (long p = 0; p < 4; p++)
-                c[i + j * ldc] = alpha * s[p] + beta * c[i + j * ldc];
+            // horizontal summation
+            for (int k = 0; k < 4; k++)
+                c[i * n + j] += s[k];
         }
     }
-
-    std::free(A);
-    std::free(B);
+    std::free(a);
+    std::free(b);
 }
 
 int main(int argc, char *argv[]) {
@@ -87,8 +101,8 @@ int main(int argc, char *argv[]) {
     double *b = new double[k * n];
     double *c = new double[m * n];
     double *c_org = new double[m * n];
-    double alpha = random_double(gen);
-    double beta = random_double(gen);
+    double alpha = 1.0d; // random_double(gen);
+    double beta = 0.0d;  // random_double(gen);
 
     for (long i = 0; i < m * k; i++) {
         a[i] = random_double(gen);
@@ -106,14 +120,14 @@ int main(int argc, char *argv[]) {
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
 
-    char transa = 'n', transb = 'n';
+    char transa = 't', transb = 't';
     Rgemm(&transa, &transb, (long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c_org, (long)ldc);
 
     double tmp;
     tmp = 0.0;
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            tmp += abs(c_org[i + j * ldc] - c[i + j * ldc]);
+            tmp += abs(c_org[i + j * ldc] - c[j + i * ldc]);
         }
     }
 

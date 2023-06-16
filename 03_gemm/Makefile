@@ -11,9 +11,12 @@ LDFLAGSMPFR = -L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/li
 LDFLAGSDOUBLE = #-L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/lib
 
 TARGET = \
+gemm_float_10_naive \
+gemm_float_11_transposition \
 gemm_double_10_naive \
+gemm_double_11_transposition \
+gemm_double_12_vectorization \
 gemm_double_20_mpblas \
-gemm_double_11_vectorization \
 gemm_gmp_10_naive \
 gemm_gmp_11_jli_2 \
 gemm_gmp_11_jli_2_openmp \
@@ -29,8 +32,11 @@ gemm_gmp_31_mpblaslike_blocking gemm_gmp_32_mpblaslike_blocking_openmp \
 gemm_mpfr_10_naive #gemm_mpfr_11_fma
 
 SRCS = \
+gemm_float_10_naive.cpp \
+gemm_float_11_transposition.cpp \
 gemm_double_10_naive.cpp \
-gemm_double_11_vectorization.cpp \
+gemm_double_11_transposition.cpp \
+gemm_double_12_vectorization.cpp \
 gemm_double_20_mpblas.cpp \
 gemm_gmp_10_naive.cpp \
 gemm_gmp_11_jli_2.cpp \
@@ -52,11 +58,20 @@ OBJS = $(SRCS:.cpp=.o)
 
 all: $(TARGET)
 
-gemm_double_10_naive: gemm_double_10_naive.o
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+gemm_float_10_naive: gemm_float_10_naive.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
 
-gemm_double_11_vectorization: gemm_double_11_vectorization.o
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+gemm_float_11_transposition: gemm_float_11_transposition.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
+
+gemm_double_10_naive: gemm_double_10_naive.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
+
+gemm_double_11_transposition: gemm_double_11_transposition.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
+
+gemm_double_12_vectorization: gemm_double_12_vectorization.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
 
 gemm_double_20_mpblas: gemm_double_20_mpblas.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)

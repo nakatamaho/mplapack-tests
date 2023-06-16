@@ -22,33 +22,6 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-void matmul_double(int m, int n, int k, double alpha, double *a, int lda, double *b, int ldb, double beta, double *c, int ldc) {
-    if (m != n || k != n) {
-        printf("m!=n, k!=n are not supported\n");
-        exit(-1);
-    }
-    if (lda != n || ldb != n || ldc != n) {
-        printf("lda!=n, ldb!=n, ldc!=n are not supported\n");
-        exit(-1);
-    }
-    if (alpha != 1.0f) {
-        printf("alpha !=1 is supported\n");
-        exit(-1);
-    }
-    if (beta != 0.0f) {
-        printf("beta !=0 is supported\n");
-        exit(-1);
-    }
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            c[i * n + j] = 0.0;
-
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            for (int k = 0; k < n; k++)
-                c[i * n + j] += a[i * n + k] * b[k * n + j];
-}
-
 int main(int argc, char *argv[]) {
     if (argc != 4) {
         fprintf(stderr, "Usage: %s <m> <k> <n>\n", argv[0]);
@@ -69,8 +42,8 @@ int main(int argc, char *argv[]) {
     double *b = new double[k * n];
     double *c = new double[m * n];
     double *c_org = new double[m * n];
-    double alpha = 1.0d; // random_double(gen);
-    double beta = 0.0d;  // random_double(gen);
+    double alpha = random_double(gen);
+    double beta = random_double(gen);
 
     for (long i = 0; i < m * k; i++) {
         a[i] = random_double(gen);
@@ -83,26 +56,14 @@ int main(int argc, char *argv[]) {
     }
 
     // compute c = alpha ab + beta c \n");
+    char transa = 'n', transb = 'n';
     auto start = std::chrono::high_resolution_clock::now();
-    matmul_double(m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
+    Rgemm(&transa, &transb, (long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c_org, (long)ldc);
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
 
-    char transa = 't', transb = 't';
-    Rgemm(&transa, &transb, (long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c_org, (long)ldc);
-
-    double tmp, tmp2;
-    tmp = tmp2 = 0.0;
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            tmp2 = abs(c_org[i + j * ldc] - c[j + i * ldc]);
-            tmp = std::max(tmp2, tmp);
-        }
-    }
-
-    printf("    m     n     k     MFLOPS      DIFF     Elapsed(s)\n");
+    printf("    m     n     k     MFLOPS        Elapsed(s)\n");
     printf("%5d %5d %5d %10.3f", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS);
-    printf("   %5.3e", tmp);
     printf("     %5.3f\n", elapsed_seconds.count());
 
     delete[] a;

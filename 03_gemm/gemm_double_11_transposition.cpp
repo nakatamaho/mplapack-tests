@@ -22,7 +22,7 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-void matmul_double(int m, int n, int k, double alpha, double *a, int lda, double *b, int ldb, double beta, double *c, int ldc) {
+void matmul_double(int m, int n, int k, double alpha, double *a, int lda, double *_b, int ldb, double beta, double *c, int ldc) {
     if (m != n || k != n) {
         printf("m!=n, k!=n are not supported\n");
         exit(-1);
@@ -39,6 +39,13 @@ void matmul_double(int m, int n, int k, double alpha, double *a, int lda, double
         printf("beta !=0 is supported\n");
         exit(-1);
     }
+
+    double *b = new double[n * n];
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            b[i * n + j] = _b[j * n + i];
+
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
             c[i * n + j] = 0.0;
@@ -46,7 +53,7 @@ void matmul_double(int m, int n, int k, double alpha, double *a, int lda, double
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
             for (int k = 0; k < n; k++)
-                c[i * n + j] += a[i * n + k] * b[k * n + j];
+                c[i * n + j] += a[i * n + k] * b[j * n + k];
 }
 
 int main(int argc, char *argv[]) {
