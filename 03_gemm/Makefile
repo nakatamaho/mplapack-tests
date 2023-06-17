@@ -14,6 +14,7 @@ TARGET = \
 gemm_float_10_naive \
 gemm_float_11_transposition \
 gemm_float_12_vectorization \
+gemm_float_13_kernel \
 gemm_double_10_naive \
 gemm_double_11_transposition \
 gemm_double_12_vectorization \
@@ -35,6 +36,8 @@ gemm_mpfr_10_naive #gemm_mpfr_11_fma
 SRCS = \
 gemm_float_10_naive.cpp \
 gemm_float_11_transposition.cpp \
+gemm_float_12_vectorization.cpp \
+gemm_float_13_kernel.cpp \
 gemm_double_10_naive.cpp \
 gemm_double_11_transposition.cpp \
 gemm_double_12_vectorization.cpp \
@@ -66,6 +69,9 @@ gemm_float_11_transposition: gemm_float_11_transposition.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
 
 gemm_float_12_vectorization: gemm_float_12_vectorization.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
+
+gemm_float_13_kernel: gemm_float_13_kernel.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
 
 gemm_double_10_naive: gemm_double_10_naive.o
