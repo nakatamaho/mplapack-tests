@@ -13,6 +13,7 @@ LDFLAGSDOUBLE = #-L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)
 TARGET = \
 gemm_float_10_naive \
 gemm_float_11_transposition \
+gemm_float_12_vectorization \
 gemm_double_10_naive \
 gemm_double_11_transposition \
 gemm_double_12_vectorization \
@@ -62,6 +63,9 @@ gemm_float_10_naive: gemm_float_10_naive.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
 
 gemm_float_11_transposition: gemm_float_11_transposition.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
+
+gemm_float_12_vectorization: gemm_float_12_vectorization.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
 
 gemm_double_10_naive: gemm_double_10_naive.o
