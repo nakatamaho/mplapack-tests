@@ -15,6 +15,8 @@ gemm_float_10_naive \
 gemm_float_11_transposition \
 gemm_float_12_vectorization \
 gemm_float_13_kernel \
+gemm_float_14_blocking \
+gemm_float_15_openmp \
 gemm_double_10_naive \
 gemm_double_11_transposition \
 gemm_double_12_vectorization \
@@ -38,6 +40,8 @@ gemm_float_10_naive.cpp \
 gemm_float_11_transposition.cpp \
 gemm_float_12_vectorization.cpp \
 gemm_float_13_kernel.cpp \
+gemm_float_14_blocking.cpp \
+gemm_float_15_openmp.cpp \
 gemm_double_10_naive.cpp \
 gemm_double_11_transposition.cpp \
 gemm_double_12_vectorization.cpp \
@@ -73,6 +77,12 @@ gemm_float_12_vectorization: gemm_float_12_vectorization.o
 
 gemm_float_13_kernel: gemm_float_13_kernel.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
+
+gemm_float_14_blocking: gemm_float_14_blocking.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
+
+gemm_float_15_openmp: gemm_float_15_openmp.o
+	$(CXX) $(OPENMPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
 
 gemm_double_10_naive: gemm_double_10_naive.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
