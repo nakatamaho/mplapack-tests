@@ -51,6 +51,10 @@ void matmul_float(int m, int n, int k, float alpha, float *_a, int lda, float *_
         exit(-1);
     }
 
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            c[i * n + j] = 0.0;
+
     int nB = (n + 7) / 8; // number of 8-element vectors in a row (rounded up)
 
     vec *a = alloc(n * nB);
