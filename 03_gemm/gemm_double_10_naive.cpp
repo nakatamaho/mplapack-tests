@@ -23,30 +23,14 @@ double flops_gemm(int k_i, int m_i, int n_i) {
 }
 
 void matmul_double(int m, int n, int k, double alpha, double *a, int lda, double *b, int ldb, double beta, double *c, int ldc) {
-    if (m != n || k != n) {
-        printf("m!=n, k!=n are not supported\n");
-        exit(-1);
-    }
-    if (lda != n || ldb != n || ldc != n) {
-        printf("lda!=n, ldb!=n, ldc!=n are not supported\n");
-        exit(-1);
-    }
-    if (alpha != 1.0f) {
-        printf("alpha !=1 is supported\n");
-        exit(-1);
-    }
-    if (beta != 0.0f) {
-        printf("beta !=0 is supported\n");
-        exit(-1);
-    }
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
-            c[i * n + j] = 0.0;
+            c[i + j * ldc] = beta * c[i + j * ldc];
 
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
             for (int k = 0; k < n; k++)
-                c[i * n + j] += a[i * n + k] * b[k * n + j];
+                c[i + j * ldc] += alpha * a[i + k * lda] * b[k + j * ldb];
 }
 
 int main(int argc, char *argv[]) {
@@ -88,14 +72,14 @@ int main(int argc, char *argv[]) {
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
 
-    char transa = 't', transb = 't';
+    char transa = 'n', transb = 'n';
     Rgemm(&transa, &transb, (long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c_org, (long)ldc);
 
     double tmp, tmp2;
     tmp = tmp2 = 0.0;
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            tmp2 = abs(c_org[i + j * ldc] - c[j + i * ldc]);
+            tmp2 = abs(c_org[i + j * ldc] - c[i + j * ldc]);
             tmp = std::max(tmp2, tmp);
         }
     }
