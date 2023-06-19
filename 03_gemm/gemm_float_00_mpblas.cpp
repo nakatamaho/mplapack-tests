@@ -25,10 +25,10 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int m = atoi(argv[1]);
-    int k = atoi(argv[2]);
-    int n = atoi(argv[3]);
-    int lda = m, ldb = k, ldc = m;
+    long m = atoi(argv[1]);
+    long k = atoi(argv[2]);
+    long n = atoi(argv[3]);
+    long lda = m, ldb = k, ldc = m;
 
     // Initialize and set random values for a, b, c, alpha, and beta
     std::random_device rd;
@@ -54,13 +54,13 @@ int main(int argc, char *argv[]) {
     // Compute C = alpha AB + beta C \n");
     char transa = 'n', transb = 'n';
     auto start = std::chrono::high_resolution_clock::now();
-    Rgemm(&transa, &transb, (long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c, (long)ldc);
+    Rgemm(&transa, &transb, m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::cout << "Elapsed time: " << elapsed_seconds.count() << " s" << std::endl;
     printf("    m     n     k     MFLOPS  Elapsed(s) \n");
-    printf("%5d %5d %5d %10.3f  %5.3f\n", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS, elapsed_seconds.count());
+    printf("%5d %5d %5d %10.3f  %5.3f\n", (int)m, (int)n, (int)k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS, elapsed_seconds.count());
 
     delete[] a;
     delete[] b;

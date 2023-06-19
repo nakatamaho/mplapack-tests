@@ -23,14 +23,14 @@ double flops_gemm(int k_i, int m_i, int n_i) {
 }
 
 void matmul_double(long m, long n, long k, double alpha, double *a, long lda, double *b, long ldb, double beta, double *c, long ldc) {
-    for (long i = 0; i < n; i++)
+    for (long i = 0; i < m; i++)
         for (long j = 0; j < n; j++)
             c[i + j * ldc] = beta * c[i + j * ldc];
 
-    for (long i = 0; i < n; i++)
+    for (long i = 0; i < m; i++)
         for (long j = 0; j < n; j++)
-            for (long k = 0; k < n; k++)
-                c[i + j * ldc] += alpha * a[i + k * lda] * b[k + j * ldb];
+            for (long l = 0; l < k; k++)
+                c[i + j * ldc] += alpha * a[i + l * lda] * b[l + j * ldb];
 }
 
 int main(int argc, char *argv[]) {
