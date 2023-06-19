@@ -54,6 +54,8 @@ void matmul_float(int m, int n, int k, float alpha, float *a, int lda, float *_b
         for (int j = 0; j < n; j++)
             for (int k = 0; k < n; k++)
                 c[i * n + j] += a[i * n + k] * b[j * n + k];
+
+    delete[] b;
 }
 
 int main(int argc, char *argv[]) {
