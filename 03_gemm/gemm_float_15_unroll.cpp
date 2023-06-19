@@ -128,17 +128,20 @@ void matmul_float(int m, int n, int k, float alpha, float *_a, int lda, float *_
         printf("beta !=0 is supported\n");
         exit(-1);
     }
-
+    if (n != 960 && n != 1920 && n != 3840) {
+        printf("only n=960,1920 and 3840 are supported.\n");
+        exit(-1);
+    }
     int nx = (n + 5) / 6 * 6;
     int ny = (n + 15) / 16 * 16;
 
-    const int MAXN = 1920 * 1920; // ~15MB each
-    alignas(64) static float a[MAXN], b[MAXN], c[MAXN];
+    const int MAXN = 4000 * 4000;
+    alignas(64) static float a[MAXN] = {0}, b[MAXN] = {0}, c[MAXN] = {0};
 
-    /*for (int i = 0; i < n; i++) {
-          memcpy(&a[i * ny], &_a[i * n], 4 * n);
-          memcpy(&b[i * ny], &_b[i * n], 4 * n);
-    }*/
+    for (int i = 0; i < n; i++) {
+        memcpy(&a[i * ny], &_a[i * n], 4 * n);
+        memcpy(&b[i * ny], &_b[i * n], 4 * n);
+    }
 
     // c[x:x+6][y:y+16] += a[x:x+6][l:r] * b[l:r][y:y+16]
 
@@ -196,6 +199,9 @@ void matmul_float(int m, int n, int k, float alpha, float *_a, int lda, float *_
                 for (int x = i2; x < i2 + s2; x += 6)
                     for (int y = i3; y < i3 + s3; y += 16)
                         kernel(a, (vector *)b, (vector *)c, x, y, i1, i1 + s1, ny);
+
+    for (int i = 0; i < n; i++)
+        memcpy(&_c[i * n], &c[i * ny], 4 * n);
 }
 
 int main(int argc, char *argv[]) {
