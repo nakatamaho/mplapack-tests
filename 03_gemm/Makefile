@@ -22,6 +22,7 @@ gemm_double_00_mpblas \
 gemm_double_10_naive \
 gemm_double_11_transposition \
 gemm_double_12_vectorization \
+gemm_double_13_kernel \
 gemm_gmp_10_naive \
 gemm_gmp_11_jli_2 \
 gemm_gmp_11_jli_2_openmp \
@@ -48,6 +49,7 @@ gemm_double_00_mpblas.cpp \
 gemm_double_10_naive.cpp \
 gemm_double_11_transposition.cpp \
 gemm_double_12_vectorization.cpp \
+gemm_double_13_kernel.cpp \
 gemm_gmp_10_naive.cpp \
 gemm_gmp_11_jli_2.cpp \
 gemm_gmp_11_jli_2_openmp.cpp \
@@ -99,6 +101,9 @@ gemm_double_11_transposition: gemm_double_11_transposition.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
 
 gemm_double_12_vectorization: gemm_double_12_vectorization.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
+
+gemm_double_13_kernel: gemm_double_13_kernel.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
 
 gemm_gmp_10_naive: gemm_gmp_10_naive.o

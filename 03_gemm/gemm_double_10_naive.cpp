@@ -38,7 +38,6 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Usage: %s <m> <k> <n>\n", argv[0]);
         return 1;
     }
-
     long m = atoi(argv[1]);
     long k = atoi(argv[2]);
     long n = atoi(argv[3]);

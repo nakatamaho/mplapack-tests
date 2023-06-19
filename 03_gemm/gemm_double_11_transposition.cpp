@@ -22,22 +22,22 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-void matmul_double(long m, long n, long k, double alpha, double *a, long lda, double *_b, long ldb, double beta, double *c, long ldc) {
+void matmul_double(long m, long n, long k, double alpha, double *a, long lda, double *b, long ldb, double beta, double *c, long ldc) {
 
-    double *b = new double[n * n];
+    double *a_t = new double[k * m];
+    for (long i = 0; i < m; i++)
+        for (long j = 0; j < k; j++)
+            a_t[j + i * k] = a[i + j * lda];
 
-    for (long i = 0; i < n; i++)
-        for (long j = 0; j < n; j++)
-            b[i + j * ldb] = _b[j + i * ldb];
-
-    for (long i = 0; i < n; i++)
-        for (long j = 0; j < n; j++)
+    for (long j = 0; j < n; j++)
+        for (long i = 0; i < m; i++)
             c[i + j * ldc] = beta * c[i + j * ldc];
 
-    for (long i = 0; i < n; i++)
+    for (long i = 0; i < m; i++)
         for (long j = 0; j < n; j++)
-            for (long k = 0; k < n; k++)
-                c[i + j * ldc] += alpha * a[i + k * lda] * b[k + j * ldb];
+            for (long l = 0; l < k; l++)
+                c[i + j * ldc] += alpha * a_t[l + i * k] * b[l + j * ldb];
+    delete[] a_t;
 }
 
 int main(int argc, char *argv[]) {
@@ -45,7 +45,6 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Usage: %s <m> <k> <n>\n", argv[0]);
         return 1;
     }
-
     long m = atoi(argv[1]);
     long k = atoi(argv[2]);
     long n = atoi(argv[3]);
@@ -86,7 +85,7 @@ int main(int argc, char *argv[]) {
     tmp = tmp2 = 0.0;
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            tmp2 = abs(c_org[i + j * ldc] - c[j + i * ldc]);
+            tmp2 = abs(c_org[i + j * ldc] - c[i + j * ldc]);
             tmp = std::max(tmp2, tmp);
         }
     }

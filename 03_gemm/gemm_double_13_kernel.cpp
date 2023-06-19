@@ -33,7 +33,28 @@ vec *alloc(int n) {
     return ptr;
 }
 
-void matmul_float(int m, int n, int k, float alpha, float *_a, int lda, float *_b, int ldb, float beta, float *c, int ldc) {
+// update 6x16 submatrix C[x:x+6][y:y+16]
+// using A[x:x+6][l:r] and B[l:r][y:y+16]
+void kernel(float *a, vec *b, vec *c, int x, int y, int l, int r, int n) {
+    vec t[6][2]{}; // will be zero-filled and stored in ymm registers
+
+    for (int k = l; k < r; k++) {
+        for (int i = 0; i < 6; i++) {
+            // broadcast a[x + i][k] into a register
+            vec alpha = vec{} + a[(x + i) * n + k]; // converts to a broadcast
+                                                    // multiply b[k][y:y+16] by it and update t[i][0] and t[i][1]
+            for (int j = 0; j < 2; j++)
+                t[i][j] += alpha * b[(k * n + y) / 8 + j]; // converts to an fma
+        }
+    }
+
+    // write the results back to C
+    for (int i = 0; i < 6; i++)
+        for (int j = 0; j < 2; j++)
+            c[((x + i) * n + y) / 8 + j] += t[i][j];
+}
+
+void matmul_float(int m, int n, int k, float alpha, float *_a, int lda, float *_b, int ldb, float beta, float *_c, int ldc) {
     if (m != n || k != n) {
         printf("m!=n, k!=n are not supported\n");
         exit(-1);
@@ -50,40 +71,28 @@ void matmul_float(int m, int n, int k, float alpha, float *_a, int lda, float *_
         printf("beta !=0 is supported\n");
         exit(-1);
     }
+    int nx = (n + 5) / 6 * 6;
+    int ny = (n + 15) / 16 * 16;
+
+    float *a = (float *)alloc(nx * ny);
+    float *b = (float *)alloc(nx * ny);
+    float *c = (float *)alloc(nx * ny);
+
+    for (int i = 0; i < n; i++) {
+        memcpy(&a[i * ny], &_a[i * n], 4 * n);
+        memcpy(&b[i * ny], &_b[i * n], 4 * n); // we don't need to transpose b this time
+    }
+
+    for (int x = 0; x < nx; x += 6)
+        for (int y = 0; y < ny; y += 16)
+            kernel(a, (vec *)b, (vec *)c, x, y, 0, n, ny);
 
     for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            c[i * n + j] = 0.0;
-
-    int nB = (n + 7) / 8; // number of 8-element vectors in a row (rounded up)
-
-    vec *a = alloc(n * nB);
-    vec *b = alloc(n * nB);
-
-    // move both matrices to the aligned region
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            a[i * nB + j / 8][j % 8] = _a[i * n + j];
-            b[i * nB + j / 8][j % 8] = _b[j * n + i]; // <- b is still transposed
-        }
-    }
-
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            vec s{}; // initialize the accumulator with zeros
-
-            // vertical summation
-            for (int k = 0; k < nB; k++)
-                s += a[i * nB + k] * b[j * nB + k];
-
-            // horizontal summation
-            for (int k = 0; k < 8; k++)
-                c[i * n + j] += s[k];
-        }
-    }
+        memcpy(&_c[i * n], &c[i * ny], 4 * n);
 
     std::free(a);
     std::free(b);
+    std::free(c);
 }
 
 int main(int argc, char *argv[]) {
