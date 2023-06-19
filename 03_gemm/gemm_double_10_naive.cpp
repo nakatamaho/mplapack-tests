@@ -22,14 +22,14 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-void matmul_double(int m, int n, int k, double alpha, double *a, int lda, double *b, int ldb, double beta, double *c, int ldc) {
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
+void matmul_double(long m, long n, long k, double alpha, double *a, long lda, double *b, long ldb, double beta, double *c, long ldc) {
+    for (long i = 0; i < n; i++)
+        for (long j = 0; j < n; j++)
             c[i + j * ldc] = beta * c[i + j * ldc];
 
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            for (int k = 0; k < n; k++)
+    for (long i = 0; i < n; i++)
+        for (long j = 0; j < n; j++)
+            for (long k = 0; k < n; k++)
                 c[i + j * ldc] += alpha * a[i + k * lda] * b[k + j * ldb];
 }
 
@@ -39,10 +39,10 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int m = atoi(argv[1]);
-    int k = atoi(argv[2]);
-    int n = atoi(argv[3]);
-    int lda = m, ldb = k, ldc = m;
+    long m = atoi(argv[1]);
+    long k = atoi(argv[2]);
+    long n = atoi(argv[3]);
+    long lda = m, ldb = k, ldc = m;
 
     // Initialize and set random values for a, b, c, alpha, and beta
     std::random_device rd;
@@ -53,8 +53,8 @@ int main(int argc, char *argv[]) {
     double *b = new double[k * n];
     double *c = new double[m * n];
     double *c_org = new double[m * n];
-    double alpha = 1.0d; // random_double(gen);
-    double beta = 0.0d;  // random_double(gen);
+    double alpha = random_double(gen);
+    double beta = random_double(gen);
 
     for (long i = 0; i < m * k; i++) {
         a[i] = random_double(gen);
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
     std::chrono::duration<double> elapsed_seconds = end - start;
 
     char transa = 'n', transb = 'n';
-    Rgemm(&transa, &transb, (long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c_org, (long)ldc);
+    Rgemm(&transa, &transb, m, n, k, alpha, a, lda, b, ldb, beta, c_org, ldc);
 
     double tmp, tmp2;
     tmp = tmp2 = 0.0;
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     }
 
     printf("    m     n     k     MFLOPS      DIFF     Elapsed(s)\n");
-    printf("%5d %5d %5d %10.3f", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS);
+    printf("%5d %5d %5d %10.3f", (int)m, (int)n, (int)k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS);
     printf("   %5.3e", tmp);
     printf("     %5.3f\n", elapsed_seconds.count());
 

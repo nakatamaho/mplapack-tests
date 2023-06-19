@@ -22,38 +22,23 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-void matmul_double(int m, int n, int k, double alpha, double *a, int lda, double *_b, int ldb, double beta, double *c, int ldc) {
-    if (m != n || k != n) {
-        printf("m!=n, k!=n are not supported\n");
-        exit(-1);
-    }
-    if (lda != n || ldb != n || ldc != n) {
-        printf("lda!=n, ldb!=n, ldc!=n are not supported\n");
-        exit(-1);
-    }
-    if (alpha != 1.0f) {
-        printf("alpha !=1 is supported\n");
-        exit(-1);
-    }
-    if (beta != 0.0f) {
-        printf("beta !=0 is supported\n");
-        exit(-1);
-    }
+void matmul_double(long m, long n, long k, double alpha, double *a, long lda, double *_b, long ldb, double beta, double *c, long ldc) {
 
     double *b = new double[n * n];
 
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
+    for (long i = 0; i < n; i++)
+        for (long j = 0; j < n; j++)
             b[i * n + j] = _b[j * n + i];
 
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            c[i * n + j] = 0.0;
+    for (long i = 0; i < n; i++)
+        for (long j = 0; j < n; j++)
+            c[i + j * ldc] = beta * c[i + j * ldc];
 
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            for (int k = 0; k < n; k++)
-                c[i * n + j] += a[i * n + k] * b[j * n + k];
+    for (long i = 0; i < n; i++)
+        for (long j = 0; j < n; j++)
+            for (long k = 0; k < n; k++)
+                c[i + j * ldc] += alpha * a[i + k * lda] * b[k + j * ldb];
+
 }
 
 int main(int argc, char *argv[]) {
@@ -76,8 +61,8 @@ int main(int argc, char *argv[]) {
     double *b = new double[k * n];
     double *c = new double[m * n];
     double *c_org = new double[m * n];
-    double alpha = 1.0d; // random_double(gen);
-    double beta = 0.0d;  // random_double(gen);
+    double alpha = 1.0f; // random_double(gen);
+    double beta = 0.0f;  // random_double(gen);
 
     for (long i = 0; i < m * k; i++) {
         a[i] = random_double(gen);
