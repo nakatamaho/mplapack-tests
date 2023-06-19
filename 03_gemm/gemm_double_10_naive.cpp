@@ -29,7 +29,7 @@ void matmul_double(long m, long n, long k, double alpha, double *a, long lda, do
 
     for (long i = 0; i < m; i++)
         for (long j = 0; j < n; j++)
-            for (long l = 0; l < k; k++)
+            for (long l = 0; l < k; l++)
                 c[i + j * ldc] += alpha * a[i + l * lda] * b[l + j * ldb];
 }
 
