@@ -2,9 +2,7 @@
 #include <random>
 #include <chrono>
 #include <stdio.h>
-#include <assert.h>
 #include "Rgemm_float.hpp"
-#include <time.h>
 
 #define MFLOPS 1e-6
 
