@@ -11,6 +11,7 @@ LDFLAGSMPFR = -L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/li
 LDFLAGSDOUBLE = #-L$(MPLAPACK_HOME)/lib -lgmp -lmpfr -Wl,-rpath,$(MPLAPACK_HOME)/lib
 
 TARGET = \
+gemm_float_00_mpblas \
 gemm_float_10_naive \
 gemm_float_11_transposition \
 gemm_float_12_vectorization \
@@ -36,6 +37,7 @@ gemm_gmp_31_mpblaslike_blocking gemm_gmp_32_mpblaslike_blocking_openmp \
 gemm_mpfr_10_naive #gemm_mpfr_11_fma
 
 SRCS = \
+gemm_float_00_mpblas.cpp \
 gemm_float_10_naive.cpp \
 gemm_float_11_transposition.cpp \
 gemm_float_12_vectorization.cpp \
@@ -65,6 +67,9 @@ OBJS = $(SRCS:.cpp=.o)
 .PHONY: all clean
 
 all: $(TARGET)
+
+gemm_float_00_mpblas: gemm_float_00_mpblas.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
 
 gemm_float_10_naive: gemm_float_10_naive.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGSDOUBLE)
