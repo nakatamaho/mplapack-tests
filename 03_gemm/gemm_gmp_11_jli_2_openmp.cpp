@@ -7,7 +7,6 @@
 #include <gmpxx.h>
 #include "Rgemm.hpp"
 
-#include <time.h>
 
 #define MFLOPS 1e-6
 

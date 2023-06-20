@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <gmp.h>
 #include <assert.h>
-#include <time.h>
 #include <omp.h>
 #include <gmpxx.h>
 #include "Rgemm.hpp"

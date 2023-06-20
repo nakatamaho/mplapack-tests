@@ -1,7 +1,6 @@
 #include <mpfr.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
 #include <gmp.h>
 #include <iostream>
 #include <chrono>

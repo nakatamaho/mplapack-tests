@@ -3,7 +3,6 @@
 #include <chrono>
 #include <stdio.h>
 #include <assert.h>
-#include <time.h>
 
 #include "Rgemm_double.hpp"
 
