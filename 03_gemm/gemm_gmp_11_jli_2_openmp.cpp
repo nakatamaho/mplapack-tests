@@ -7,7 +7,6 @@
 #include <gmpxx.h>
 #include "Rgemm.hpp"
 
-
 #define MFLOPS 1e-6
 
 // cf. https://netlib.org/lapack/lawnspdf/lawn41.pdf p.120

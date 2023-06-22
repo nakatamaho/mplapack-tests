@@ -35,7 +35,7 @@ vec *alloc(long n) {
     return ptr;
 }
 
-#define ___KERNEL_SIZE_X___  3
+#define ___KERNEL_SIZE_X___ 3
 #define ___KERNEL_SIZE_Y___ 16
 
 // update 6x16 submatrix C[x:x+6][y:y+16]

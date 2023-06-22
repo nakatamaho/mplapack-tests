@@ -35,7 +35,7 @@ vec *alloc(long n) {
     return ptr;
 }
 
-#define ___KERNEL_SIZE_X___  3
+#define ___KERNEL_SIZE_X___ 3
 #define ___KERNEL_SIZE_Y___ 16
 
 // update 6x16 submatrix C[x:x+6][y:y+16]
@@ -84,7 +84,7 @@ void matmul_double(long m, long n, long k, double alpha, double *_a, long lda, d
     const long s2 = 120; // how many rows of A to select
     const long s1 = 240; // how many rows of B to select
 
-    #pragma omp for collapse(3) schedule(static)
+#pragma omp for collapse(3) schedule(static)
     for (long i3 = 0; i3 < ny; i3 += s3)
         // now we are working with b[:][i3:i3+s3]
         for (long i2 = 0; i2 < nx; i2 += s2)
@@ -124,8 +124,8 @@ int main(int argc, char *argv[]) {
     double *b = new double[k * n];
     double *c = new double[m * n];
     double *c_org = new double[m * n];
-    double alpha = 1.0; //random_double(gen);
-    double beta = 0.0; //random_double(gen);
+    double alpha = 1.0; // random_double(gen);
+    double beta = 0.0;  // random_double(gen);
 
     for (long i = 0; i < m * k; i++) {
         a[i] = random_double(gen);
