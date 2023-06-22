@@ -84,7 +84,6 @@ void matmul_double(long m, long n, long k, double alpha, double *_a, long lda, d
     const long s2 = 120; // how many rows of A to select
     const long s1 = 240; // how many rows of B to select
 
-#pragma omp for collapse(3) schedule(static)
     for (long i3 = 0; i3 < ny; i3 += s3)
         // now we are working with b[:][i3:i3+s3]
         for (long i2 = 0; i2 < nx; i2 += s2)
