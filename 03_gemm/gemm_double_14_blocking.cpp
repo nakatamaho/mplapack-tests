@@ -55,7 +55,7 @@ void kernel(double *a, vec *b, vec *c, double alpha, long x, long y, long l, lon
     // write the results back to C
     for (long i = 0; i < 6; i++)
         for (long j = 0; j < 2; j++)
-            c[((x + i) * n + y) / 4 + j] += t[i][j];
+            c[((x + i) * n + y) / 4 + j] += alpha * t[i][j];
 }
 
 void matmul_double(long m, long n, long k, double alpha, double *_a, long lda, double *_b, long ldb, double beta, double *_c, long ldc) {
@@ -79,18 +79,21 @@ void matmul_double(long m, long n, long k, double alpha, double *_a, long lda, d
         memcpy(&a[i * ny], &_a[i * n], 8 * n);
         memcpy(&b[i * ny], &_b[i * n], 8 * n); // we don't need to transpose b this time
     }
-/*
+
     for (long i = 0; i < n; i++)
         for (long j = 0; j < m; j++)
             _c[i + j * ldc] = beta * _c[i + j * ldc];
 
     for (long i = 0; i < n; i++)
-        memcpy(&c[i * n], &_c[i * ny], 8 * n);
-*/
+        memcpy(&c[i * ny], &_c[i * n], 8 * n);
+
+#pragma omp parallel
+{
     const long s3 = 64;  // how many columns of B to select
     const long s2 = 120; // how many rows of A to select
     const long s1 = 240; // how many rows of B to select
 
+    #pragma omp for collapse(3) schedule(static)
     for (long i3 = 0; i3 < ny; i3 += s3)
         // now we are working with b[:][i3:i3+s3]
         for (long i2 = 0; i2 < nx; i2 += s2)
@@ -101,7 +104,7 @@ void matmul_double(long m, long n, long k, double alpha, double *_a, long lda, d
                 for (long x = i2; x < std::min(i2 + s2, nx); x += 6)
                     for (long y = i3; y < std::min(i3 + s3, ny); y += 8)
                         kernel(a, (vec *)b, (vec *)c, alpha, x, y, i1, std::min(i1 + s1, n), ny);
-
+}
     for (long i = 0; i < n; i++)
         memcpy(&_c[i * n], &c[i * ny], 8 * n);
 
@@ -130,7 +133,7 @@ int main(int argc, char *argv[]) {
     double *b = new double[k * n];
     double *c = new double[m * n];
     double *c_org = new double[m * n];
-    double alpha = 1.0; //random_double(gen);
+    double alpha = random_double(gen);
     double beta = 0.0; //random_double(gen);
 
     for (long i = 0; i < m * k; i++) {
