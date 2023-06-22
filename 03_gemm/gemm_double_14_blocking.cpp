@@ -40,16 +40,16 @@ vec *alloc(long n) {
 
 // update 6x16 submatrix C[x:x+6][y:y+16]
 // using A[x:x+6][l:r] and B[l:r][y:y+16]
-void kernel(double *a, vec *b, vec *c, long x, long y, long l, long r, long n) {
+void kernel(double *a, vec *b, vec *c, double alpha, long x, long y, long l, long r, long n) {
     vec t[6][2]{}; // will be zero-filled and stored in ymm registers
 
     for (long k = l; k < r; k++) {
         for (long i = 0; i < 6; i++) {
             // broadcast a[x + i][k] longo a register
-            vec alpha = vec{} + a[(x + i) * n + k]; // converts to a broadcast
+            vec gamma = vec{} + a[(x + i) * n + k]; // converts to a broadcast
                                                     // multiply b[k][y:y+16] by it and update t[i][0] and t[i][1]
             for (long j = 0; j < 2; j++)
-                t[i][j] += alpha * b[(k * n + y) / 4 + j]; // converts to an fma
+                t[i][j] += gamma * b[(k * n + y) / 4 + j]; // converts to an fma
         }
     }
     // write the results back to C
@@ -67,14 +67,7 @@ void matmul_double(long m, long n, long k, double alpha, double *_a, long lda, d
         printf("lda!=n, ldb!=n, ldc!=n are not supported\n");
         exit(-1);
     }
-    if (alpha != 1.0d) {
-        printf("alpha !=1 is supported\n");
-        exit(-1);
-    }
-    if (beta != 0.0d) {
-        printf("beta !=0 is supported\n");
-        exit(-1);
-    }
+
     long nx = (n + 5) / 6 * 6;
     long ny = (n + 7) / 8 * 8;
 
@@ -86,7 +79,14 @@ void matmul_double(long m, long n, long k, double alpha, double *_a, long lda, d
         memcpy(&a[i * ny], &_a[i * n], 8 * n);
         memcpy(&b[i * ny], &_b[i * n], 8 * n); // we don't need to transpose b this time
     }
+/*
+    for (long i = 0; i < n; i++)
+        for (long j = 0; j < m; j++)
+            _c[i + j * ldc] = beta * _c[i + j * ldc];
 
+    for (long i = 0; i < n; i++)
+        memcpy(&c[i * n], &_c[i * ny], 8 * n);
+*/
     const long s3 = 64;  // how many columns of B to select
     const long s2 = 120; // how many rows of A to select
     const long s1 = 240; // how many rows of B to select
@@ -100,7 +100,7 @@ void matmul_double(long m, long n, long k, double alpha, double *_a, long lda, d
                 // and we need to update c[i2:i2+s2][i3:i3+s3] with [l:r] = [i1:i1+s1]
                 for (long x = i2; x < std::min(i2 + s2, nx); x += 6)
                     for (long y = i3; y < std::min(i3 + s3, ny); y += 8)
-                        kernel(a, (vec *)b, (vec *)c, x, y, i1, std::min(i1 + s1, n), ny);
+                        kernel(a, (vec *)b, (vec *)c, alpha, x, y, i1, std::min(i1 + s1, n), ny);
 
     for (long i = 0; i < n; i++)
         memcpy(&_c[i * n], &c[i * ny], 8 * n);
@@ -130,8 +130,8 @@ int main(int argc, char *argv[]) {
     double *b = new double[k * n];
     double *c = new double[m * n];
     double *c_org = new double[m * n];
-    double alpha = 1.0f; // random_double(gen);
-    double beta = 0.0f;  // random_double(gen);
+    double alpha = 1.0; //random_double(gen);
+    double beta = 0.0; //random_double(gen);
 
     for (long i = 0; i < m * k; i++) {
         a[i] = random_double(gen);
