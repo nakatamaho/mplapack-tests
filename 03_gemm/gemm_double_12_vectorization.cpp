@@ -23,8 +23,8 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-// AVX2: a vector of 256 / 64 = 4 doubles
-typedef double vec __attribute__((vector_size(64)));
+// AVX2 = 256 bits / 64 (bits / double) = 4 doubles. 4 doubles = 32 bytes
+typedef double vec __attribute__((vector_size(32)));
 
 // a helper function that allocates n vectors and initializes them with zeros
 vec *alloc(int n) {
@@ -38,7 +38,7 @@ void matmul_double(long m, long n, long k, double alpha, double *_a, long lda, d
         for (long j = 0; j < n; j++)
             c[i * n + j] = beta * c[i * n + j];
 
-    long nB = (n + 7) / 8; // number of 8-element vectors in a row (rounded up)
+    long nB = (n + 3) / 4; // number of 4-element vectors in a row (rounded up)
 
     vec *a = alloc(n * nB);
     vec *b = alloc(n * nB);
@@ -46,8 +46,8 @@ void matmul_double(long m, long n, long k, double alpha, double *_a, long lda, d
     // move both matrices to the aligned region
     for (long i = 0; i < n; i++) {
         for (long j = 0; j < n; j++) {
-            a[i * nB + j / 8][j % 8] = _a[i * n + j];
-            b[i * nB + j / 8][j % 8] = _b[j * n + i]; // <- b is still transposed
+            a[i * nB + j / 4][j % 4] = _a[i * n + j];
+            b[i * nB + j / 4][j % 4] = _b[j * n + i]; // <- b is still transposed
         }
     }
 
@@ -60,7 +60,7 @@ void matmul_double(long m, long n, long k, double alpha, double *_a, long lda, d
                 s += a[i * nB + k] * b[j * nB + k];
 
             // horizontal summation
-            for (long k = 0; k < 8; k++)
+            for (long k = 0; k < 4; k++)
                 c[i * n + j] += s[k];
         }
     }
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
 
-    char transa = 'n', transb = 'n';
+    char transa = 't', transb = 't';
     Rgemm(&transa, &transb, m, n, k, alpha, a, lda, b, ldb, beta, c_org, ldc);
 
     double tmp, tmp2;

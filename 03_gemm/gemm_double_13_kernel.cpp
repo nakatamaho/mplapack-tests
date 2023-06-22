@@ -5,55 +5,60 @@
 #include <assert.h>
 #include <cstring>
 
-#include "Rgemm_float.hpp"
+#include "Rgemm_double.hpp"
 
 #define MFLOPS 1e-6
 
 // cf. https://netlib.org/lapack/lawnspdf/lawn41.pdf p.120
-float flops_gemm(int k_i, int m_i, int n_i) {
-    float adds, muls, flops;
-    float k, m, n;
-    m = (float)m_i;
-    n = (float)n_i;
-    k = (float)k_i;
+double flops_gemm(long k_i, long m_i, long n_i) {
+    double adds, muls, flops;
+    double k, m, n;
+    m = (double)m_i;
+    n = (double)n_i;
+    k = (double)k_i;
     muls = m * (k + 2) * n;
     adds = m * k * n;
     flops = muls + adds;
     return flops;
 }
 
-// a vector of 256 / 32 = 8 floats
-typedef float vec __attribute__((vector_size(32)));
+// AVX2 = 256 bits / 64 (bits / double) = 4 doubles. 4 doubles = 32 bytes
+
+#define ___VECTOR_SIZE_IN_BYTES___ 32
+#define ___VECTOR_ALIGNMENT_IN_BYTES___ 32
+typedef double vec __attribute__((vector_size(___VECTOR_SIZE_IN_BYTES___)));
 
 // a helper function that allocates n vectors and initializes them with zeros
-vec *alloc(int n) {
-    vec *ptr = (vec *)std::aligned_alloc(32, 32 * n);
-    memset(ptr, 0, 32 * n);
+vec *alloc(long n) {
+    vec *ptr = (vec *)std::aligned_alloc(___VECTOR_ALIGNMENT_IN_BYTES___, ___VECTOR_SIZE_IN_BYTES___ * n);
+    memset(ptr, 0, ___VECTOR_SIZE_IN_BYTES___ * n);
     return ptr;
 }
 
+#define ___KERNEL_SIZE_X___  3
+#define ___KERNEL_SIZE_Y___ 16
+
 // update 6x16 submatrix C[x:x+6][y:y+16]
 // using A[x:x+6][l:r] and B[l:r][y:y+16]
-void kernel(float *a, vec *b, vec *c, int x, int y, int l, int r, int n) {
+void kernel(double *a, vec *b, vec *c, long x, long y, long l, long r, long n) {
     vec t[6][2]{}; // will be zero-filled and stored in ymm registers
 
-    for (int k = l; k < r; k++) {
-        for (int i = 0; i < 6; i++) {
-            // broadcast a[x + i][k] into a register
+    for (long k = l; k < r; k++) {
+        for (long i = 0; i < 6; i++) {
+            // broadcast a[x + i][k] longo a register
             vec alpha = vec{} + a[(x + i) * n + k]; // converts to a broadcast
                                                     // multiply b[k][y:y+16] by it and update t[i][0] and t[i][1]
-            for (int j = 0; j < 2; j++)
-                t[i][j] += alpha * b[(k * n + y) / 8 + j]; // converts to an fma
+            for (long j = 0; j < 2; j++)
+                t[i][j] += alpha * b[(k * n + y) / 4 + j]; // converts to an fma
         }
     }
-
     // write the results back to C
-    for (int i = 0; i < 6; i++)
-        for (int j = 0; j < 2; j++)
-            c[((x + i) * n + y) / 8 + j] += t[i][j];
+    for (long i = 0; i < 6; i++)
+        for (long j = 0; j < 2; j++)
+            c[((x + i) * n + y) / 4 + j] += t[i][j];
 }
 
-void matmul_float(int m, int n, int k, float alpha, float *_a, int lda, float *_b, int ldb, float beta, float *_c, int ldc) {
+void matmul_double(long m, long n, long k, double alpha, double *_a, long lda, double *_b, long ldb, double beta, double *_c, long ldc) {
     if (m != n || k != n) {
         printf("m!=n, k!=n are not supported\n");
         exit(-1);
@@ -62,32 +67,32 @@ void matmul_float(int m, int n, int k, float alpha, float *_a, int lda, float *_
         printf("lda!=n, ldb!=n, ldc!=n are not supported\n");
         exit(-1);
     }
-    if (alpha != 1.0f) {
+    if (alpha != 1.0d) {
         printf("alpha !=1 is supported\n");
         exit(-1);
     }
-    if (beta != 0.0f) {
+    if (beta != 0.0d) {
         printf("beta !=0 is supported\n");
         exit(-1);
     }
-    int nx = (n + 5) / 6 * 6;
-    int ny = (n + 15) / 16 * 16;
+    long nx = (n + 5) / 6 * 6;
+    long ny = (n + 7) / 8 * 8;
 
-    float *a = (float *)alloc(nx * ny);
-    float *b = (float *)alloc(nx * ny);
-    float *c = (float *)alloc(nx * ny);
+    double *a = (double *)alloc(nx * ny);
+    double *b = (double *)alloc(nx * ny);
+    double *c = (double *)alloc(nx * ny);
 
-    for (int i = 0; i < n; i++) {
-        memcpy(&a[i * ny], &_a[i * n], 4 * n);
-        memcpy(&b[i * ny], &_b[i * n], 4 * n); // we don't need to transpose b this time
+    for (long i = 0; i < n; i++) {
+        memcpy(&a[i * ny], &_a[i * n], 8 * n);
+        memcpy(&b[i * ny], &_b[i * n], 8 * n);
     }
 
-    for (int x = 0; x < nx; x += 6)
-        for (int y = 0; y < ny; y += 16)
+    for (long x = 0; x < nx; x += 6)
+        for (long y = 0; y < ny; y += 8)
             kernel(a, (vec *)b, (vec *)c, x, y, 0, n, ny);
 
-    for (int i = 0; i < n; i++)
-        memcpy(&_c[i * n], &c[i * ny], 4 * n);
+    for (long i = 0; i < n; i++)
+        memcpy(&_c[i * n], &c[i * ny], 8 * n);
 
     std::free(a);
     std::free(b);
@@ -108,45 +113,45 @@ int main(int argc, char *argv[]) {
     // Initialize and set random values for a, b, c, alpha, and beta
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> random_float(0.0, 1.0);
+    std::uniform_real_distribution<> random_double(0.0, 1.0);
 
-    float *a = new float[m * k];
-    float *b = new float[k * n];
-    float *c = new float[m * n];
-    float *c_org = new float[m * n];
-    float alpha = 1.0f; // random_float(gen);
-    float beta = 0.0f;  // random_float(gen);
+    double *a = new double[m * k];
+    double *b = new double[k * n];
+    double *c = new double[m * n];
+    double *c_org = new double[m * n];
+    double alpha = 1.0f; // random_double(gen);
+    double beta = 0.0f;  // random_double(gen);
 
     for (long i = 0; i < m * k; i++) {
-        a[i] = random_float(gen);
+        a[i] = random_double(gen);
     }
     for (long i = 0; i < k * n; i++) {
-        b[i] = random_float(gen);
+        b[i] = random_double(gen);
     }
     for (long i = 0; i < m * n; i++) {
-        c_org[i] = c[i] = random_float(gen);
+        c_org[i] = c[i] = random_double(gen);
     }
 
     // compute c = alpha ab + beta c \n");
     auto start = std::chrono::high_resolution_clock::now();
-    matmul_float(m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
+    matmul_double(m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
     auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<float> elapsed_seconds = end - start;
+    std::chrono::duration<double> elapsed_seconds = end - start;
 
     char transa = 't', transb = 't';
-    Rgemm(&transa, &transb, (long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c_org, (long)ldc);
+    Rgemm(&transa, &transb, m, n, k, alpha, a, lda, b, ldb, beta, c_org, ldc);
 
-    float tmp, tmp2;
+    double tmp, tmp2;
     tmp = tmp2 = 0.0;
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
+    for (long i = 0; i < m; i++) {
+        for (long j = 0; j < n; j++) {
             tmp2 = abs(c_org[i + j * ldc] - c[j + i * ldc]);
             tmp = std::max(tmp2, tmp);
         }
     }
 
     printf("    m     n     k     MFLOPS      DIFF     Elapsed(s)\n");
-    printf("%5d %5d %5d %10.3f", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS);
+    printf("%5d %5d %5d %10.3f", (int)m, (int)n, (int)k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS);
     printf("   %5.3e", tmp);
     printf("     %5.3f\n", elapsed_seconds.count());
 

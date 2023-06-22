@@ -127,14 +127,14 @@ void matmul_float(int m, int n, int k, float alpha, float *_a, int lda, float *_
         printf("beta !=0 is supported\n");
         exit(-1);
     }
-    if (n != 960 && n != 1920 && n != 3840) {
+    if (n != 960 && n != 1920 && n != 3840 && n != 4800 && n != 5760) {
         printf("only n=960,1920 and 3840 are supported.\n");
         exit(-1);
     }
     int nx = (n + 5) / 6 * 6;
     int ny = (n + 15) / 16 * 16;
 
-    const int MAXN = 4000 * 4000;
+    const int MAXN = 6000 * 6000;
     alignas(64) static float a[MAXN] = {0}, b[MAXN] = {0}, c[MAXN] = {0};
 
     for (int i = 0; i < n; i++) {
